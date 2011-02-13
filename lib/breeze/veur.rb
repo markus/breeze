@@ -18,6 +18,22 @@ module Breeze
       ! (ask("#{question} [YES/no] >") =~ /n/i)
     end
 
+    # Print out dots while waiting for something.
+    # Usage:
+    #   print "My task is running..."
+    #   wait_until { my_task.completed? }
+    def wait_until(message='completed!')
+      3.times { dot_and_sleep(1) }
+      dot_and_sleep(2) until yield
+      puts message
+    end
+
+    # a helper for wait_until
+    def dot_and_sleep(interval)
+      print('.')
+      sleep(interval)
+    end
+
     # Print a table with a title and a top border of matching width.
     # The first row must contain column titles, less than 2 rows is not printed.
     def report(title, table)
