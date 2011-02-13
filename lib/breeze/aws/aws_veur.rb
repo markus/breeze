@@ -1,3 +1,5 @@
+require 'breeze/veur'
+
 module Breeze
   module Aws
 
@@ -17,6 +19,10 @@ module Breeze
         Aws.connection
       end
 
+      # Convert the keys to symbols for the amazon-ec2 gem.
+      def options
+        @options_with_symbolized_keys ||= {}.tap{ |h| super.each{ |k,v| h[k.to_sym] = v } }
+      end
     end
   end
 end
