@@ -1,3 +1,5 @@
+require 'breeze/aws/connection'
+
 module Breeze
   module Aws
 
@@ -5,16 +7,31 @@ module Breeze
     # May reload data from AWS.
     class Ec2Instance
 
+      include Connection
+      attr_reader :id
+
       def initialize(instance_id)
-        @instance_id = instance_id
+        @id = instance_id
       end
 
       def running?
         state == 'running'
       end
 
+      def stopped?
+        state == 'stopped'
+      end
+
       def public_ip
         instance_data.string('ipAddress')
+      end
+
+      def stop!
+        aws.stop_instances(:instance_id => @id)
+      end
+
+      def terminate!
+        aws.terminate_instances(:instance_id => @id)
       end
 
       private
@@ -28,9 +45,8 @@ module Breeze
       end
 
       def fetch_instance_data
-        Aws.connection.describe_instances(:instance_id => @instance_id).first_hash('reservationSet item').first_hash('instancesSet item')
+        aws.describe_instances(:instance_id => @id).first_hash('reservationSet item').first_hash('instancesSet item')
       end
-
     end
   end
 end
