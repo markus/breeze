@@ -1,11 +1,13 @@
-require 'thor'
-
 require 'breeze/version'
 
-# general plumbing
-require 'breeze/veur'
-require 'breeze/response_hash'
-require 'breeze/report_table'
+module Breeze
 
-# task definitions
-require 'breeze/aws'
+  autoload :ResponseHash, 'breeze/response_hash'
+  autoload :ReportTable,  'breeze/report_table'
+
+  # get a slice from the CONFIGURATION hash
+  def self.conf(*args)
+    CONFIGURATION.reject{ |k,v| !args.include?(k) }
+  end
+
+end
