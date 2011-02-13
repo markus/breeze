@@ -1,10 +1,13 @@
 require 'breeze/veur'
+require 'breeze/aws/connection'
 
 module Breeze
   module Aws
 
     # A subclass of Thor with helpers for AWS tasks.
     class AwsVeur < Veur
+
+      include Connection
 
       # shorten the task names
       def self.inherited(c)
@@ -14,10 +17,6 @@ module Breeze
       end
 
       private
-
-      def aws
-        Aws.connection
-      end
 
       # Convert the keys to symbols for the amazon-ec2 gem.
       def options
