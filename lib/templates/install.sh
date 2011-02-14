@@ -1,4 +1,5 @@
 #!/bin/bash
+# Modify install_conf.sh and install_cust.sh first.
 set -e -x
 shopt -s expand_aliases
 

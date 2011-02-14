@@ -3,10 +3,6 @@
 # The IMAGE_MAGICK_PACKAGE defined below may no longer be available from the download url specified
 # in install_cust.sh. Find the latest release at http://www.imagemagick.org/script/download.php.
 
-# set up $HOME and output redirection
-HOME=/home/ubuntu
-exec > >(tee $HOME/install.log) 2>&1
-
 # define packages to install
 SYSTEM_PACKAGES="git-core monit"
 DB_CLIENT_PACKAGES="mysql-client libmysqlclient16 libmysqlclient16-dev"
