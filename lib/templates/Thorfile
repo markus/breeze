@@ -1,0 +1,38 @@
+# Sign up for AWS credentials at http://aws.amazon.com/
+
+Breeze::CONFIGURATION = {
+  # access credentials are needed for all tasks
+  :access_key_id => 'YOUR-ACCESS-KEY-ID',
+  :secret_access_key => 'YOUR-SECTET-ACCESS-KEY',
+
+  # These options are needed when launching new instances.
+  :key_pair_name => 'THE-NAME-OF-YOUR-KEYPAIR', # http://alestic.com/2010/10/ec2-ssh-keys
+  :default_ami => 'YOUR-PRIVATE-AMI-OR-A-PUBLIC-ONE',
+  :default_instance_type => 't1.micro', # t1.micro m1.small c1.medium ...
+  :default_availability_zone => 'us-east-1a', # us-west-1a eu-west-1a ap-southeast-1a
+
+  # Used when building your own private AMI:
+  :default_base_ami => 'ami-ccf405a5', # http://alestic.com
+
+  # AMIs owned by these accounts are included in aws:describe:images (provided that you have access to them)
+  :ami_owners => ['YOUR-ACCOUNT-ID-WITHOUT-DASHES'] # canonical: '099720109477'
+}.freeze
+
+# This is an example impementation of prepare_private_ami. This method is called from
+# aws:image:create. You probably want to modify this and/or the scripts that are uploaded
+# if you want to create your own private AMI. Here we assume you have uploaded your own
+# public key to Amazon. Use "ssh -i /path/to/key" if not using your default ssh key.
+def Breeze.prepare_private_ami(ip_address)
+  user_at_host = "ubuntu@#{ip_address}"
+  puts("Waiting for the server to accept ssh connections as #{user_at_host}...")
+  sleep(2) until system("ssh -q -o 'BatchMode=yes' #{user_at_host} 'echo 2>&1'")
+  %w(install.sh install_conf.sh install_cust.sh deploy.sh).each do |file|
+    system("scp config/breeze/#{file} #{user_at_host}:#{file}")
+  end
+  system("ssh #{user_at_host} 'bash install.sh'")
+end
+
+# Define Breeze::CONFIGURATION before requiring the tasks!
+# This allows us to pick up default options that can be viewed
+# with the "thor help" command.
+require 'breeze/aws/tasks'
