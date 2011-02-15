@@ -9,6 +9,8 @@ sudo gem install --no-ri --no-rdoc bundler passenger
 
 # install nginx and passenger
 sudo passenger-install-nginx-module --auto --auto-download --prefix=/usr --extra-configure-flags="$NGINX_OPTIONS"
+# remove confusing nginx configuration files that are not used
+rm -rf /etc/nginx/{conf.d,fastcgi*,scgi_params*,sites-*,uwsgi*}
 
 # install ImageMagick
 package_manager -y build-dep imagemagick

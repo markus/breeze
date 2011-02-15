@@ -13,7 +13,8 @@ BRANCH=${1:-master} # can also be the name of a tag
 APP_NAME=${2:-YOUR-APP}
 BASE_URL=${3:-"https://github.com/YOUR-LOGIN/YOUR-APP/tarball/$BRANCH"}
 # user_data is readable by anyone who can log in so it may be better
-# to put the access credentials here (readable by user ubuntu only)
+# to put the access credentials here (readable by user ubuntu only).
+# Add this file to .gitignore if it includes credentials.
 QUERY_STRING=${4:-'?login=YOUR-LOGIN&token=YOUR-GITHUB-ACCESS-TOKEN'}
 
 DOWNLOAD_URL="$BASE_URL$QUERY_STRING"

@@ -4,7 +4,8 @@
 # in install_cust.sh. Find the latest release at http://www.imagemagick.org/script/download.php.
 
 # define packages to install
-SYSTEM_PACKAGES="git-core monit"
+# passenger will replace the nginx binary, but the package provides startup script, user etc.
+SYSTEM_PACKAGES="git-core monit nginx"
 DB_CLIENT_PACKAGES="mysql-client libmysqlclient16 libmysqlclient16-dev"
 RUBY_BUILD_DEPENDENCIES="\
   build-essential bison openssl zlib1g libxslt1.1 libssl-dev libxslt1-dev libxml2 \
