@@ -1,14 +1,14 @@
 #!/bin/bash
 # This example script downloads a tarball from github and deploys it to /srv.
 # You can pass in user_data to invoke this script with different command line
-# options when new instances are launched.
+# arguments when new instances are launched.
 set -e -x
 shopt -s expand_aliases
 
 HOME=/home/ubuntu
 exec 1>$HOME/deploy.log 2>&1
 
-# command line parameters with default values
+# command line arguments with default values
 BRANCH=${1:-master} # can also be the name of a tag
 APP_NAME=${2:-YOUR-APP}
 BASE_URL=${3:-"https://github.com/YOUR-LOGIN/YOUR-APP/tarball/$BRANCH"}

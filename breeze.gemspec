@@ -8,9 +8,13 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Markus Bengts"]
   s.email       = ["markus.bengts@gmail.com"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.homepage    = "https://github.com/markus/breeze"
+  s.summary     = %q{Thor tasks to manage AWS cloud computing resorces and deployments}
+  s.description = <<-END_DESCRIPTION
+Breeze makes it easy to automate server installation and configuration. It provides
+example scripts and configuration files that you can modify and keep in your revision
+control system. Thor tasks are provided to create server images, launch server instances etc.
+END_DESCRIPTION
 
   s.rubyforge_project = "breeze"
 

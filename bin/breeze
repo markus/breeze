@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+
+module Breeze
+  class Runner < Thor
+
+    desc 'init [SERVER_TYPE]', 'Initialize a new project with templates for scripts and configuration files'
+    def init(*args)
+      require 'breeze/initializer'
+      invoke('breeze:initializer:init')
+    end
+
+    desc 'deploy_server_configuration', 'Deploy server configuration to the local file system based on ERB templates in config/server'
+    method_options :force => :boolean
+    def deploy_server_configuration
+      require 'breeze/erb_conf'
+      Breeze::ErbConf.new.deploy(options[:force])
+    end
+
+  end
+end
+
+Breeze::Runner.start
