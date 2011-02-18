@@ -30,10 +30,10 @@ def Breeze.prepare_private_ami(ip_address)
   user_at_host = "ubuntu@#{ip_address}"
   puts("Waiting for the server to accept ssh connections as #{user_at_host}...")
   sleep(2) until system("ssh -q -o 'BatchMode=yes' #{user_at_host} 'echo 2>&1'")
-  %w(install.sh install_conf.sh install_cust.sh deploy.sh).each do |file|
+  %w(install.sh install_conf.sh install_cust.sh deploy.sh credentials.sh).each do |file|
     system("scp config/breeze/#{file} #{user_at_host}:#{file}")
   end
-  system("ssh #{user_at_host} 'bash install.sh'")
+  system("ssh #{user_at_host} 'chmod 600 credentials.sh; chmod 700 deploy.sh; bash install.sh'")
 end
 
 # Define Breeze::CONFIGURATION before requiring the tasks!

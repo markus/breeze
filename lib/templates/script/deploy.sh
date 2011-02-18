@@ -8,14 +8,15 @@ shopt -s expand_aliases
 HOME=/home/ubuntu
 exec 1>$HOME/deploy.log 2>&1
 
+source $HOME/credentials.sh
+
 # command line arguments with default values
 BRANCH=${1:-master} # can also be the name of a tag
 APP_NAME=${2:-YOUR-APP}
 BASE_URL=${3:-"https://github.com/YOUR-LOGIN/YOUR-APP/tarball/$BRANCH"}
-# user_data is readable by anyone who can log in so it may be better
-# to put the access credentials here (readable by user ubuntu only).
-# Add this file to .gitignore if it includes credentials.
-QUERY_STRING=${4:-'?login=YOUR-LOGIN&token=YOUR-GITHUB-ACCESS-TOKEN'}
+# NOTICE: user_data is readable by anyone who can log in but
+# credentials.sh is readable only by user ubuntu (and sudoers)
+QUERY_STRING=${4:-"?login=YOUR-GITHUB-LOGIN&token=$GITHUB_TOKEN"}
 
 DOWNLOAD_URL="$BASE_URL$QUERY_STRING"
 DEPLOY_PATH=/srv/$APP_NAME
