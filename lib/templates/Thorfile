@@ -1,4 +1,8 @@
-# Sign up for AWS credentials at http://aws.amazon.com/
+# Sign up for AWS credentials at http://aws.amazon.com/. Learn how to
+# upload your own public ssh key at http://alestic.com/2010/10/ec2-ssh-keys.
+# Use environment variables in this file if you share it with others.
+
+require 'breeze'
 
 Breeze::CONFIGURATION = {
   # access credentials are needed for all tasks
