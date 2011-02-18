@@ -1,4 +1,4 @@
-# Sign up for AWS credentials at http://aws.amazon.com/. Learn how to
+# Sign up for AWS credentials at http://aws.amazon.com/, and learn how to
 # upload your own public ssh key at http://alestic.com/2010/10/ec2-ssh-keys.
 # Use environment variables in this file if you share it with others.
 
@@ -19,7 +19,11 @@ Breeze::CONFIGURATION = {
   :default_base_ami => 'ami-ccf405a5', # http://alestic.com
 
   # AMIs owned by these accounts are included in aws:describe:images (provided that you have access to them)
-  :ami_owners => ['YOUR-ACCOUNT-ID-WITHOUT-DASHES'] # canonical: '099720109477'
+  :ami_owners => ['YOUR-ACCOUNT-ID-WITHOUT-DASHES'], # canonical: '099720109477'
+
+  # you can add your own keys and access this hash as CONFIGURATION in the erb templates
+  :admin_email => 'YOUR-EMAIL',
+  :app_path => '/srv/YOUR-APP'
 }.freeze
 
 # This is an example impementation of prepare_private_ami. This method is called from

@@ -14,6 +14,11 @@ module Breeze
     desc 'deploy_server_configuration', 'Deploy server configuration to the local file system based on ERB templates in config/server'
     method_options :force => :boolean
     def deploy_server_configuration
+      begin
+        load "#{Dir.pwd}/Thorfile"
+      rescue LoadError
+        puts "WARNING: could not load Thorfile, CONFIGURATION may not be accessible"
+      end
       require 'breeze/erb_conf'
       Breeze::ErbConf.new.deploy(options[:force])
     end
