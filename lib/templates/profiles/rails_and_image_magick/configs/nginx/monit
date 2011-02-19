@@ -1,0 +1,9 @@
+<%
+  @path = '/etc/monit/conf.d/nginx'
+%>
+check process nginx with pidfile /var/run/nginx.pid
+  group nginx-production
+  start program = "/etc/init.d/nginx start"
+  stop program = "/etc/init.d/nginx stop"
+  if failed host localhost port 80 protocol http and request "/robots.txt" with timeout 5 seconds then restart
+  if 2 restarts within 3 cycles then timeout

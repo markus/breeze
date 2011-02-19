@@ -34,4 +34,5 @@ sudo mv $HOME/*$APP_NAME* $DEPLOY_PATH
 chown -R rails $DEPLOY_PATH
 cd $DEPLOY_PATH
 sudo bundle install
-# sudo breeze deploy_server_configuration
+sudo breeze deploy_server_configuration
+sudo /etc/init.d/monit start
