@@ -1,0 +1,26 @@
+<%
+  @path = "/etc/logrotate.d/nginx"
+  shared_rotate_conf = <<-END_SHARED_ROTATE_CONF
+    size 1M
+    missingok
+    rotate 5
+    compress
+    delaycompress
+    notifempty
+  END_SHARED_ROTATE_CONF
+%>
+# Nginx logs
+/var/log/nginx/*.log {
+  <%= shared_rotate_conf %>
+  create 640 root adm
+  sharedscripts
+  postrotate
+    [ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+  endscript
+}
+
+# Rails application logs
+<%= CONFIGURATION[:app_path] %>/log/*.log {
+  <%= shared_rotate_conf %>
+  copytruncate
+}
