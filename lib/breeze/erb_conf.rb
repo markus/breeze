@@ -12,7 +12,7 @@ module Breeze
     # This is almost compatible with https://github.com/wr0ngway/rubber/wiki/Configuration
     # but there is no support for @additive and rubber configuration.
     def deploy(force=false)
-      Dir['config/breeze/config/**/*'].each do |path|
+      Dir['config/breeze/configs/**/*'].each do |path|
         transform_and_deploy(path, force) unless File.directory?(path)
       end
     end

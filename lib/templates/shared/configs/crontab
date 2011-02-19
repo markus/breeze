@@ -1,0 +1,10 @@
+<%
+  @read_cmd = 'crontab -l'
+  @write_cmd = 'crontab -'
+%>
+
+PATH=/usr/bin:/bin:/sbin:/usr/sbin
+MAILTO=<%= CONFIGURATION[:admin_email] %>
+
+# Keep the system clock on time
+<%= rand(59) %>     4 * * *       ntpdate -s pool.ntp.org
