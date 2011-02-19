@@ -27,14 +27,15 @@ Breeze::CONFIGURATION = {
 }.freeze
 
 # This is an example impementation of prepare_private_ami. This method is called from
-# aws:image:create. You probably want to modify this and/or the scripts that are uploaded
-# if you want to create your own private AMI. Here we assume you have uploaded your own
-# public key to Amazon. Use "ssh -i /path/to/key" if not using your default ssh key.
+# aws:image:create. You can modify this and/or the scripts that are uploaded in order
+# to create your own private AMI. Here we assume you have uploaded your own public key
+# to Amazon. Use "ssh -i /path/to/key" if not using your default ssh key.
 def Breeze.prepare_private_ami(ip_address)
   user_at_host = "ubuntu@#{ip_address}"
   puts("Waiting for the server to accept ssh connections as #{user_at_host}...")
   sleep(2) until system("ssh -q -o 'BatchMode=yes' #{user_at_host} 'echo 2>&1'")
   puts("Uploading scripts...")
+  # system("rsync -v -e 'ssh -i /path/to/key' config/breeze/scripts/*.sh #{user_at_host}:./")
   system("rsync -v config/breeze/scripts/*.sh #{user_at_host}:./")
   system("ssh #{user_at_host} 'chmod 600 credentials.sh; chmod 700 deploy.sh; bash install.sh'")
 end
