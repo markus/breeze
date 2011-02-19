@@ -30,7 +30,7 @@ module Breeze
         report_errors(@write_cmd)
         set_owner_and_permissions if @path
         if @post
-          system("trap 'exit 1' ERR; #{@post}")
+          system("set -e; #{@post}")
           report_errors(@post)
         end
       end
