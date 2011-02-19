@@ -31,7 +31,7 @@ wget -q --no-check-certificate --directory-prefix=$HOME --output-document=tarbal
 tar --directory $HOME -xzf tarball.tar.gz
 
 sudo mv $HOME/*$APP_NAME* $DEPLOY_PATH
-chown -R rails $DEPLOY_PATH
+sudo chown -R rails $DEPLOY_PATH
 cd $DEPLOY_PATH
 sudo bundle install
 sudo breeze deploy_server_configuration
