@@ -4,48 +4,38 @@ module Breeze
     # Dealing with EC2 server instances.
     class Instance < AwsVeur
 
-      desc 'launch', 'Launch a new server instance on EC2'
-      method_options  :image_id           => CONFIGURATION[:default_ami],
-                      :key_name           => CONFIGURATION[:key_pair_name],
-                      :instance_type      => CONFIGURATION[:default_instance_type],
-                      :availability_zone  => CONFIGURATION[:default_availability_zone],
-                      :user_data_file     => :string
+      desc 'launch', 'Launch a new server instance on Amazon EC2'
+      method_options  Ec2Instance::DEFAULT_OPTIONS.merge(:user_data_file => :string)
       def launch
         if options[:user_data_file]
           options[:user_data] = File.read(options[:user_data_file])
           options[:base64_encoded] = true
         end
-        puts("launch options: #{options.inspect}")
-        extract_instances(aws.run_instances(options))
+        response = Ec2Instance.launch!(options).instance_data
         additional_report_fields = [
           ['State', 'instanceState name']
         ]
-        report('LAUNCHING', additional_report_fields)
-        return @instances.first['instanceId']
+        report('LAUNCHING', additional_report_fields, response)
       end
 
       desc 'terminate INSTANCE_ID', 'Terminate a running EC2 instance'
       method_options :force => false
       def terminate(instance_id)
         if options[:force] or accept?("Terminate instance #{instance_id}?")
-          extract_instances(aws.terminate_instances(:instance_id => [instance_id]))
+          response = Ec2Instance.new(instance_id).terminate!
           additional_report_fields = [
             ['Previous State', 'previousState name'],
             ['Current State', 'currentState name']
           ]
-          report('TERMINATED', additional_report_fields)
+          report('TERMINATED', additional_report_fields, response)
         end
       end
 
       private
 
-      def extract_instances(response)
-        @instances = response.array('instancesSet item')
-      end
-
-      def report(title, spec)
+      def report(title, spec, response)
         spec.unshift(['Instance ID', 'instanceId'])
-        super(title, ReportTable.create(spec, @instances))
+        super(title, ReportTable.create(spec, [response]))
       end
 
     end
