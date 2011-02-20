@@ -15,7 +15,11 @@ module Breeze
       }
 
       include Connection
-      attr_reader :id, :instance_data
+      attr_reader :id
+
+      def self.launch_and_return_instance_data!(options)
+        launch!(options).send(:instance_data)
+      end
 
       def self.launch!(options)
         new(nil).send(:launch!, DEFAULT_OPTIONS.merge(options))

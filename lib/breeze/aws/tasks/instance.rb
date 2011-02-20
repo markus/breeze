@@ -11,7 +11,7 @@ module Breeze
           options[:user_data] = File.read(options[:user_data_file])
           options[:base64_encoded] = true
         end
-        response = Ec2Instance.launch!(options).instance_data
+        response = Ec2Instance.launch_and_return_instance_data!(options)
         additional_report_fields = [
           ['State', 'instanceState name']
         ]
