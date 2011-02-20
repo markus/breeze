@@ -17,13 +17,14 @@ module Breeze
         print('Stopping the instance before saving a snapshot')
         instance.stop!
         wait_until('stopped!') { instance.stopped? }
+        thor('aws:describe:images')
         response = aws.create_image(:name => ask('Image name >'), :instance_id => instance.id)
         puts
         puts("================> Created image: #{response.string('imageId')}")
         puts
-        thor 'aws:instance:terminate', instance.id, :force => true
+        thor('aws:instance:terminate', instance.id, :force => true)
         puts
-        puts("NOTICE: it may take a while before the new image shows up in describe:images")
+        puts("NOTICE: it may take a while before the new image shows up in aws:describe:images")
       end
 
     end

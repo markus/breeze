@@ -13,8 +13,7 @@ sudo resize2fs /dev/sda1
 SCRIPT_DIR=`dirname $0`
 source $SCRIPT_DIR/install_conf.sh
 
-alias package_manager='sudo apt-get -q'
-DEBIAN_FRONTEND=noninteractive
+alias package_manager='sudo DEBIAN_FRONTEND=noninteractive apt-get -q'
 
 # upgrade and install system packages
 package_manager update
