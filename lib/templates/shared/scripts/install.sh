@@ -7,6 +7,9 @@ shopt -s expand_aliases
 HOME=/home/ubuntu
 exec > >(tee $HOME/install.log) 2>&1
 
+# use all available disk space
+sudo resize2fs /dev/sda1
+
 SCRIPT_DIR=`dirname $0`
 source $SCRIPT_DIR/install_conf.sh
 

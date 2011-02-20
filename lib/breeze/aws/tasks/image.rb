@@ -7,7 +7,10 @@ module Breeze
       desc 'create', 'Launch an instance with the base ami, wait for the new instance to boot, invoke prepare_private_ami(ip_address), ' +
                      'stop the instance, create a new AMI as a snapshot of the EBS drive, and terminate the instance.'
       def create
-        instance = Ec2Instance.launch!(:image_id => CONFIGURATION[:default_base_ami])
+        instance = Ec2Instance.launch!(
+          :image_id => CONFIGURATION[:base_ami],
+          :block_device_mapping => [{:device_name => '/dev/sda1', :ebs_volume_size => CONFIGURATION[:ebs_volume_size]}]
+        )
         print("Launching a new instance")
         wait_until('running!') { instance.running? }
         Breeze.prepare_private_ami(instance.public_ip)

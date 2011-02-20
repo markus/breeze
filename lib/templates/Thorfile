@@ -16,7 +16,8 @@ Breeze::CONFIGURATION = {
   :default_availability_zone => 'us-east-1a', # us-west-1a eu-west-1a ap-southeast-1a
 
   # Used when building your own private AMI:
-  :default_base_ami => 'ami-ccf405a5', # http://alestic.com
+  :base_ami => 'ami-ccf405a5', # http://alestic.com
+  :ebs_volume_size => 15, # in GB
 
   # AMIs owned by these accounts are included in aws:describe:images (provided that you have access to them)
   :ami_owners => ['YOUR-ACCOUNT-ID-WITHOUT-DASHES'], # canonical: '099720109477'
