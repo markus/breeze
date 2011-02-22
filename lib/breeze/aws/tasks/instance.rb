@@ -14,10 +14,7 @@ module Breeze
         if options[:user_data_file]
           options[:user_data] = Base64.encode64(File.read(options[:user_data_file])).strip
         end
-        puts("Launch options: #{options.inspect}")
-        instance = fog.servers.create(options)
-        print "Launching instance #{instance.id}"
-        wait_until('running!'){ instance.reload; instance.ready? }
+        create_instance(options)
       end
 
       desc 'terminate INSTANCE_ID', 'Terminate a running EC2 instance'

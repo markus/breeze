@@ -58,5 +58,14 @@ module Breeze
       @fog ||= Fog::Compute.new(CONFIGURATION[:connection])
     end
 
+    # TODO: find a place for this. It doesn't belong here.
+    def create_instance(options)
+      puts("Launch options: #{options.inspect}")
+      instance = fog.servers.create(options)
+      print "Launching instance #{instance.id}"
+      wait_until('running!') { instance.reload; instance.ready? }
+      return instance
+    end
+
   end
 end
