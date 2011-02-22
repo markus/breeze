@@ -24,6 +24,5 @@ END_DESCRIPTION
   s.require_paths = ["lib"]
 
   s.add_dependency('thor')
-  s.add_dependency('amazon-ec2')
   s.add_dependency('fog')
 end
