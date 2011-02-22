@@ -1,3 +1,5 @@
+require 'breeze/fog_extensions'
+
 module Breeze
 
   # Thor is also known as Veur. Veur means "guard of the shrine"
@@ -63,7 +65,7 @@ module Breeze
       puts("Launch options: #{options.inspect}")
       instance = fog.servers.create(options)
       print "Launching instance #{instance.id}"
-      wait_until('running!') { instance.reload; instance.ready? }
+      wait_until('running!') { instance.running? }
       return instance
     end
 

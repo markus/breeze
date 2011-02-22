@@ -16,7 +16,7 @@ module Breeze
       Breeze.prepare_private_ami(instance.ip_address)
       print('Stopping the instance before saving a snapshot')
       instance.stop
-      wait_until('stopped!') { instance.reload; instance.state == 'stopped' }
+      wait_until('stopped!') { instance.stopped? }
       thor('breeze:aws:describe:images')
       image = fog.images.create(:name => ask('Image name >'), :instance_id => instance.id)
       instance.destroy
