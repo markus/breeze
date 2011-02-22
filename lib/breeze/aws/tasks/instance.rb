@@ -2,40 +2,33 @@ module Breeze
   module Aws
 
     # Dealing with EC2 server instances.
-    class Instance < AwsVeur
+    class Instance < Veur
 
       desc 'launch', 'Launch a new server instance on Amazon EC2'
-      method_options  Ec2Instance::DEFAULT_OPTIONS.merge(:user_data_file => :string)
+      method_options  :image_id           => CONFIGURATION[:default_ami],
+                      :key_name           => CONFIGURATION[:key_pair_name],
+                      :flavor_id          => CONFIGURATION[:default_instance_type],
+                      :availability_zone  => CONFIGURATION[:default_availability_zone],
+                      :user_data_file     => :string
       def launch
         if options[:user_data_file]
-          options[:user_data] = File.read(options[:user_data_file])
-          options[:base64_encoded] = true
+          options[:user_data] = Base64.encode64(File.read(options[:user_data_file])).strip
         end
-        response = Ec2Instance.launch_and_return_instance_data!(options)
-        additional_report_fields = [
-          ['State', 'instanceState name']
-        ]
-        report('LAUNCHING', additional_report_fields, response)
+        puts("Launch options: #{options.inspect}")
+        instance = fog.servers.create(options)
+        print "Launching instance #{instance.id}"
+        wait_until('running!'){ instance.reload; instance.ready? }
       end
 
       desc 'terminate INSTANCE_ID', 'Terminate a running EC2 instance'
       method_options :force => false
       def terminate(instance_id)
-        if options[:force] or accept?("Terminate instance #{instance_id}?")
-          response = Ec2Instance.new(instance_id).terminate!
-          additional_report_fields = [
-            ['Previous State', 'previousState name'],
-            ['Current State', 'currentState name']
-          ]
-          report('TERMINATED', additional_report_fields, response)
+        instance = fog.servers.get(instance_id)
+        if options[:force] or accept?("Terminate instance #{instance.ip_address}?")
+          print "Instance #{instance.id} currently #{instance.state}... "
+          instance.destroy
+          puts "now #{instance.reload.state}."
         end
-      end
-
-      private
-
-      def report(title, spec, response)
-        spec.unshift(['Instance ID', 'instanceId'])
-        super(title, ReportTable.create(spec, [response]))
       end
 
     end
