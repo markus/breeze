@@ -5,7 +5,7 @@ module Breeze
     #   aws:describe:instances
     # We want plural nouns here, other namespaces are singular:
     #   aws:instance:launch
-    class Describe < AwsVeur
+    class Describe < Veur
 
       default_task :all
       desc :all, 'List all AWS resources that the current account can control with breeze'
@@ -17,59 +17,30 @@ module Breeze
 
       desc :images, 'Describe Amazon Machine Images (AMIs) owned by Breeze::CONFIGURATION[:ami_owners]'
       def images
-        images = aws.describe_images(:owner_id => CONFIGURATION[:ami_owners])
-        images = images.array('imagesSet item')
-        images.each do |i|
-          i['_name_or_location'] = i['name'] || i['imageLocation']
-          i['_type'] = [i['imageType'], i['architecture'], i['rootDeviceType']].compact.join(', ')
+        table = [['Image ID', 'Owner', 'Name or Location', 'Image Type', 'Public']]
+        fog.images.all('Owner' => Breeze::CONFIGURATION[:ami_owners][0]).each do |i|
+          type_description = "#{i.type}, #{i.architecture}, #{i.root_device_type}"
+          table << [i.id, i.owner_id, i.name||i.location, type_description, i.is_public]
         end
-        report_spec = [
-          ['Image ID', 'imageId'],
-          ['Owner', 'imageOwnerId'],
-          ['Name or Location', '_name_or_location'],
-          ['Image Type', '_type'],
-          ['Public', 'isPublic']
-        ]
-        report('AMAZON MACHINE IMAGES', ReportTable.create(report_spec, images))
+        report('AMAZON MACHINE IMAGES', table)
       end
 
       desc :instances, 'Describe EC2 server instances'
       def instances
-        instances = aws.describe_instances.array('reservationSet item')
-        instances = instances.map{ |h| h.array('instancesSet item') }.flatten
-        instances.each do |i|
-          if i['tagSet']
-            name_tag = i['tagSet']['item'].detect{ |h| h['key'] == 'Name' }
-            i['_name'] = name_tag['value'] if name_tag
-          end
+        table = [['Name', 'IP Address', 'Instance ID', 'Image ID', 'Instance Type', 'Availability Zone', 'State']]
+        fog.servers.each do |i|
+          table << [i.tags['Name'], i.ip_address, i.id, i.image_id, i.flavor_id, i.availability_zone, i.state]
         end
-        report_spec = [
-          ['Name', '_name'],
-          ['IP Address', 'ipAddress'],
-          ['Instance ID', 'instanceId'],
-          ['Image ID', 'imageId'],
-          ['Instance Type', 'instanceType'],
-          ['Availability Zone', 'placement availabilityZone'],
-          ['State', 'instanceState name']
-        ]
-        report("EC2 INSTANCES", ReportTable.create(report_spec, instances))
+        report("EC2 INSTANCES", table)
       end
 
       desc :volumes, 'Describe Elastic Block Store (EBS) volumes'
       def volumes
-        volumes = aws.describe_volumes.array('volumeSet item')
-        volumes.each do |vol|
-          vol['_instance_id'] = vol.first_hash('attachmentSet item').string('instanceId')
+        table = [['Volume ID', 'Size', 'Status', 'Zone', 'Snapshot ID', 'Used by']]
+        fog.volumes.each do |v|
+          table << [v.id, v.size, v.state, v.availability_zone, v.snapshot_id, v.server_id]
         end
-        spec = [
-          ['Volume ID', 'volumeId'],
-          ['Size', 'size'],
-          ['Status', 'status'],
-          ['Zone', 'availabilityZone'],
-          ['Snapshot ID', 'snapshotId'],
-          ['Used by', '_instance_id']
-        ]
-        report("EBS VOLUMES", ReportTable.create(spec, volumes))
+        report("EBS VOLUMES", table)
       end
 
     end

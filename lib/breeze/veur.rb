@@ -48,10 +48,14 @@ module Breeze
     def capture_table(table)
       return 'none' if table.size == 1 # the first row is for column titles
       $stdout = StringIO.new  # start capturing the output
-      print_table(table)
+      print_table(table.map{ |row| row.map(&:to_s) })
       output = $stdout
       $stdout = STDOUT        # restore normal output
       return output.string
+    end
+
+    def fog
+      @fog ||= Fog::Compute.new(CONFIGURATION[:connection])
     end
 
   end
