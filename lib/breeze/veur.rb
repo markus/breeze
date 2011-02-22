@@ -36,8 +36,8 @@ module Breeze
 
     # Print a table with a title and a top border of matching width.
     # The first row must contain column titles, less than 2 rows is not printed.
-    def report(title, table)
-      table = capture_table(table)
+    def report(title, columns, rows)
+      table = capture_table([columns] + rows)
       title = "=== #{title} "
       title << "=" * [(table.lines.max{|s| s.size }.size - title.size), 3].max
       puts title
