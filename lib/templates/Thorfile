@@ -44,4 +44,4 @@ end
 # Define Breeze::CONFIGURATION before requiring the tasks!
 # This allows us to pick up default options that can be viewed
 # with the "thor help" command.
-require 'breeze/aws/tasks'
+require 'breeze/tasks'
