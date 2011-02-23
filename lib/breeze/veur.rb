@@ -37,7 +37,6 @@ module Breeze
     end
 
     # Print a table with a title and a top border of matching width.
-    # The first row must contain column titles, less than 2 rows is not printed.
     def report(title, columns, rows)
       table = capture_table([columns] + rows)
       title = "=== #{title} "
