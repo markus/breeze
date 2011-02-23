@@ -7,7 +7,7 @@ module Breeze
 
     desc 'init [SERVER_TYPE]', 'Initialize a new project with templates for scripts and configuration files'
     def init(*args)
-      require 'breeze/initializer'
+      require 'breeze/bin_helpers/initializer'
       invoke('breeze:initializer:init')
     end
 
@@ -19,7 +19,7 @@ module Breeze
       rescue LoadError
         puts "WARNING: could not load Thorfile, CONFIGURATION may not be accessible"
       end
-      require 'breeze/erb_conf'
+      require 'breeze/bin_helpers/erb_conf'
       Breeze::ErbConf.new.deploy(options[:force])
     end
 
