@@ -19,8 +19,7 @@ module Breeze
       report 'AMAZON MACHINE IMAGES',
         ['Image ID', 'Owner', 'Name or Location', 'Image Type', 'Public'],
         fog.images.all('Owner' => Breeze::CONFIGURATION[:ami_owners][0]).map{ |i|
-          type_description = "#{i.type}, #{i.architecture}, #{i.root_device_type}"
-          [i.id, i.owner_id, i.name||i.location, type_description, i.is_public]
+          [i.id, i.owner_id, i.name||i.location, i.full_type, i.is_public]
         }
     end
 
@@ -29,7 +28,7 @@ module Breeze
       report "EC2 INSTANCES",
         ['Name', 'IP Address', 'Instance ID', 'Image ID', 'Instance Type', 'Availability Zone', 'State'],
         fog.servers.map { |i|
-          [i.tags['Name'], i.ip_address, i.id, i.image_id, i.flavor_id, i.availability_zone, i.state]
+          [i.name, i.ip_address, i.id, i.image_id, i.flavor_id, i.availability_zone, i.state]
         }
     end
 

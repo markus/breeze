@@ -20,7 +20,7 @@ module Breeze
     method_options :force => false
     def terminate(instance_id)
       instance = fog.servers.get(instance_id)
-      if options[:force] or accept?("Terminate instance #{instance.ip_address}?")
+      if options[:force] or accept?("Terminate instance #{instance.display_name}?")
         print "Instance #{instance.id} currently #{instance.state}... "
         instance.destroy
         puts "now #{instance.reload.state}."
