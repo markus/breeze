@@ -1,40 +1,36 @@
 module Breeze
 
-  # The class name is a bit weird, but task names are okay:
-  #   aws:describe:instances
-  # We want plural nouns here, other namespaces are singular:
-  #   aws:instance:launch
-  class Describe < Veur
+  class List < Veur
 
     default_task :all
     desc :all, 'List all AWS resources that the current account can control with breeze'
     def all
       images
-      instances
+      servers
       volumes
     end
 
-    desc :images, 'Describe Amazon Machine Images (AMIs) owned by Breeze::CONFIGURATION[:ami_owners]'
+    desc :images, 'Describe machine images owned by Breeze::CONFIGURATION[:image_owner]'
     def images
-      report 'AMAZON MACHINE IMAGES',
+      report 'MACHINE IMAGES',
         ['Image ID', 'Owner', 'Name or Location', 'Image Type', 'Public'],
-        fog.images.all('Owner' => Breeze::CONFIGURATION[:ami_owners][0]).map{ |i|
+        fog.images.all('Owner' => Breeze::CONFIGURATION[:image_owner]).map{ |i|
           [i.id, i.owner_id, i.name||i.location, i.full_type, i.is_public]
         }
     end
 
-    desc :instances, 'Describe EC2 server instances'
-    def instances
-      report "EC2 INSTANCES",
+    desc :servers, 'Describe server instances'
+    def servers
+      report "SERVER INSTANCES",
         ['Name', 'IP Address', 'Instance ID', 'Image ID', 'Instance Type', 'Availability Zone', 'State'],
         fog.servers.map { |i|
           [i.name, i.ip_address, i.id, i.image_id, i.flavor_id, i.availability_zone, i.state]
         }
     end
 
-    desc :volumes, 'Describe Elastic Block Store (EBS) volumes'
+    desc :volumes, 'Describe block store volumes (EBS)'
     def volumes
-      report "EBS VOLUMES",
+      report "VOLUMES",
         ['Volume ID', 'Size', 'Status', 'Zone', 'Snapshot ID', 'Used by'],
         fog.volumes.map { |v|
           [v.id, v.size, v.state, v.availability_zone, v.snapshot_id, v.server_id]

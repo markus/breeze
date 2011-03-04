@@ -5,33 +5,42 @@
 require 'breeze'
 
 Breeze::CONFIGURATION = {
-  # access credentials are needed for all tasks
-  :access_key_id => 'YOUR-ACCESS-KEY-ID',
-  :secret_access_key => 'YOUR-SECTET-ACCESS-KEY',
 
-  # These options are needed when launching new instances.
-  :key_pair_name => 'THE-NAME-OF-YOUR-KEYPAIR', # http://alestic.com/2010/10/ec2-ssh-keys
-  :default_ami => 'YOUR-PRIVATE-AMI-OR-A-PUBLIC-ONE',
-  :default_instance_type => 't1.micro', # t1.micro m1.small c1.medium ...
-  :default_availability_zone => 'us-east-1a', # us-west-1a eu-west-1a ap-southeast-1a
+  # Access credentials are needed for all tasks.
+  :cloud_service => {
+    :provider => 'AWS',
+    :access_key_id => 'YOUR-ACCESS-KEY-ID',
+    :secret_access_key => 'YOUR-SECTET-ACCESS-KEY',
+  },
 
-  # Used when building your own private AMI:
-  :base_ami => 'ami-ccf405a5', # http://alestic.com
-  :ebs_volume_size => 15, # in GB
+  # Default server options are needed when launching new servers.
+  :default_server_options => {
+    :image_id           => 'YOUR-PRIVATE-AMI-OR-A-PUBLIC-ONE',
+    :key_name           => 'THE-NAME-OF-YOUR-KEYPAIR', # http://alestic.com/2010/10/ec2-ssh-keys
+    :flavor_id          => 't1.micro', # t1.micro m1.small c1.medium ...
+    :availability_zone  => 'us-east-1a', # us-west-1a eu-west-1a ap-southeast-1a
+    :user_data_file     => nil
+  },
 
-  # AMIs owned by these accounts are included in aws:describe:images (provided that you have access to them)
-  :ami_owners => ['YOUR-ACCOUNT-ID-WITHOUT-DASHES'], # canonical: '099720109477'
+  # Override default_server_options when building your own private server image:
+  :create_image_options => {
+    :image_id => 'ami-ccf405a5', # a base AMI from http://alestic.com
+    :root_device_size => 15 # in GB
+  },
+
+  # machine images owned by this account are included in list:images (provided that you have access to them)
+  :image_owner => 'YOUR-ACCOUNT-ID-WITHOUT-DASHES', # canonical: '099720109477'
 
   # you can add your own keys and access this hash as CONFIGURATION in the erb templates
   :admin_email => 'YOUR-EMAIL',
   :app_path => '/srv/YOUR-APP'
 }.freeze
 
-# This is an example impementation of prepare_private_ami. This method is called from
+# This is an example impementation of prepare_private_image. This method is called from
 # aws:image:create. You can modify this and/or the scripts that are uploaded in order
 # to create your own private AMI. Here we assume you have uploaded your own public key
 # to Amazon. Use "ssh -i /path/to/key" if not using your default ssh key.
-def Breeze.prepare_private_ami(ip_address)
+def Breeze.prepare_private_image(ip_address)
   user_at_host = "ubuntu@#{ip_address}"
   puts("Waiting for the server to accept ssh connections as #{user_at_host}...")
   sleep(2) until system("ssh -q -o 'BatchMode=yes' #{user_at_host} 'echo 2>&1'")

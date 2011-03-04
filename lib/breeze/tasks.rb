@@ -1,4 +1,4 @@
 require 'breeze'
-require 'breeze/tasks/describe'
-require 'breeze/tasks/image'
-require 'breeze/tasks/instance'
+require 'breeze/tasks/list'
+require 'breeze/tasks/server'
+require 'breeze/tasks/server_image'

@@ -1,7 +1,7 @@
 #!/bin/bash
 # This example script downloads a tarball from github and deploys it to /srv.
 # You can pass in user_data to invoke this script with different command line
-# arguments when new instances are launched.
+# arguments when new server instances are launched.
 set -e -x
 shopt -s expand_aliases
 
