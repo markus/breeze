@@ -59,5 +59,9 @@ module Breeze
       @fog ||= Fog::Compute.new(CONFIGURATION[:cloud_service])
     end
 
+    def dns
+      @dns ||= Fog::DNS.new(CONFIGURATION[:cloud_service])
+    end
+
   end
 end

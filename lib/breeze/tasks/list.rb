@@ -37,5 +37,22 @@ module Breeze
         }
     end
 
+    desc :dns_zones, 'Describe DNS zones'
+    def dns_zones
+      zones = dns.zones
+      zones.each(&:reload) # necessary in order to get nameservers
+      report "DNS ZONES",
+        ['Domain', 'Zone ID', 'Name servers'],
+        zones.map{ |z| [z.domain, z.id, z.nameservers.join(', ')] }
+    end
+
+    desc 'dns_records ZONE_ID', 'List all DNS records for the given zone'
+    def dns_records(zone_id)
+      zone = dns.zones.get(zone_id)
+      report "DNS RECORDS FOR #{zone.domain}",
+        ['Name', 'Type', 'TTL', 'Value', 'Status', 'Record ID'],
+        zone.records.map{ |r| [r.name, r.type, r.ttl, r.ip, r.status, r.id] }
+    end
+
   end
 end
