@@ -9,8 +9,8 @@ Breeze::CONFIGURATION = {
   # Access credentials are needed for all tasks.
   :cloud_service => {
     :provider => 'AWS',
-    :access_key_id => 'YOUR-ACCESS-KEY-ID',
-    :secret_access_key => 'YOUR-SECTET-ACCESS-KEY',
+    :aws_access_key_id => 'YOUR-ACCESS-KEY-ID',
+    :aws_secret_access_key => 'YOUR-SECTET-ACCESS-KEY'
   },
 
   # Default server options are needed when launching new servers.
