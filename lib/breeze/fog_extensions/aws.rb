@@ -11,7 +11,7 @@ module Fog
       end
 
       def display_name
-        name || ip_address || "#{state} #{flavor_id} #{id}"
+        name || public_ip_address || "#{state} #{flavor_id} #{id}"
       end
 
       def running? ; current_state == 'running' ; end

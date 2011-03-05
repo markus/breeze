@@ -8,6 +8,7 @@ module Breeze
       images
       servers
       volumes
+      dns_zones
     end
 
     desc :images, 'Describe machine images owned by Breeze::CONFIGURATION[:image_owner]'
@@ -24,7 +25,7 @@ module Breeze
       report "SERVER INSTANCES",
         ['Name', 'Instance ID', 'IP Address', 'Image ID', 'Instance Type', 'Availability Zone', 'State'],
         fog.servers.map { |i|
-          [i.name, i.id, i.ip_address, i.image_id, i.flavor_id, i.availability_zone, i.state]
+          [i.name, i.id, i.public_ip_address, i.image_id, i.flavor_id, i.availability_zone, i.state]
         }
     end
 
