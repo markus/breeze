@@ -20,6 +20,24 @@ module Breeze
         end
       end
 
+      desc 'import ZONE_ID FILE', 'Creates dns records specified in FILE'
+      long_desc <<-END_DESC
+        FILE should be the path to a ruby file that defines DNS_RECORDS like this:
+        DNS_RECORDS = [
+          {:name => 'example.com', :type => 'A', :ip => '1.2.3.4'},
+          {:name => 'www.example.com', :type => 'CNAME', :ip => 'example.com'}
+        ]
+        You can also specify :ttl for each record. The default ttl is 3600 (1 hour).
+      END_DESC
+      def import(zone_id, file)
+        load file
+        zone = get_zone(zone_id)
+        DNS_RECORDS.each do |record_hash|
+          zone.records.create(record_hash)
+          puts record_hash.inspect
+        end
+      end
+
       private
 
       def get_zone(id)
