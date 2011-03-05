@@ -8,6 +8,13 @@ module Breeze
 
     include Thor::Actions
 
+    # shorten the task names
+    def self.inherited(c)
+      c.class_eval do
+        namespace Thor::Util.namespace_from_thor_class(c).sub('breeze:', '')
+      end
+    end
+
     private
 
     # Thor freezes the options (don't understand why)
