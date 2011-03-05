@@ -51,8 +51,8 @@ module Breeze
     def dns_records(zone_id)
       zone = dns.zones.get(zone_id)
       report "DNS RECORDS FOR #{zone.domain}",
-        ['Name', 'Type', 'TTL', 'Value', 'Status', 'Record ID'],
-        zone.records.map{ |r| [r.name, r.type, r.ttl, r.ip, r.status, r.id] }
+        ['Name', 'Type', 'TTL', 'Value'],
+        zone.records.map{ |r| [r.name, r.type, r.ttl, r.ip.join(', ')] }
     end
 
   end
