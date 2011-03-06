@@ -2,10 +2,10 @@ module Breeze
 
   class Db < Veur
 
-    desc 'create NAME', 'Create a new database server'
+    desc 'create SERVER_NAME [DB_NAME]', 'Create a new database server'
     method_options CONFIGURATION[:default_db_options]
-    def create(name)
-      display(rds.servers.create(options.merge(:id => name)))
+    def create(name, db_name=nil)
+      display(rds.servers.create(options.merge(:id => name, :db_name => db_name)))
     end
 
     desc 'destroy NAME', 'Destroy a database server'
