@@ -8,6 +8,7 @@ module Breeze
       images
       servers
       volumes
+      db_servers
       dns_zones
     end
 
@@ -36,6 +37,13 @@ module Breeze
         fog.volumes.map { |v|
           [v.id, v.size, v.state, v.availability_zone, v.snapshot_id, v.server_id]
         }
+    end
+
+    desc :db_servers, 'List database servers'
+    def db_servers
+      report "DATABASE SERVERS",
+        ['Name', 'Type', 'Storage', 'State', 'Endpoint'],
+        rds.servers.map{ |s| [s.id, s.flavor_id, s.allocated_storage, s.state, s.endpoint] }
     end
 
     desc :dns_zones, 'Describe DNS zones'

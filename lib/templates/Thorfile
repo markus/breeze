@@ -31,6 +31,21 @@ Breeze::CONFIGURATION = {
   # machine images owned by this account are included in list:images (provided that you have access to them)
   :image_owner => 'YOUR-ACCOUNT-ID-WITHOUT-DASHES', # canonical: '099720109477'
 
+  # db configuration is required in order to use Amazon RDS
+  :db_region => 'us-east-1', # us-west-1 eu-west-1 ap-southeast-1
+  :default_db_options => {
+    :engine => 'mysql',
+    :engine_version => '5.5',
+    :auto_minor_version_upgrade => true,
+    :allocated_storage => 5, # 5 - 1024 GB
+    :availability_zone => 'us-east-1a',
+    :backup_retention_period => 1, # 0 - 8 days
+    :preferred_backup_window => '05:30-06:00', # daily, times in UTC
+    :preferred_maintenance_window => 'sun:06:00-sun:06:30', # weekly
+    :master_username => 'admin',
+    :password => 'admin'
+  },
+
   # you can add your own keys and access this hash as CONFIGURATION in the erb templates
   :admin_email => 'YOUR-EMAIL',
   :app_path => '/srv/YOUR-APP'

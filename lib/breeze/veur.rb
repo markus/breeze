@@ -70,5 +70,12 @@ module Breeze
       @dns ||= Fog::DNS.new(CONFIGURATION[:cloud_service])
     end
 
+    def rds
+      return @rds if @rds
+      credentials = CONFIGURATION[:cloud_service].reject{ |k,v| k == :provider }
+      credentials[:region] = CONFIGURATION[:db_region]
+      @rds = Fog::AWS::RDS.new(credentials)
+    end
+
   end
 end
