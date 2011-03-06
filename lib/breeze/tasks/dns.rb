@@ -49,9 +49,9 @@ module Breeze
     # This stuff is crazy. It should be deleted as soon as Route 53 gets a web interface.
     class Record < Zone
 
-      desc 'create ZONE_ID NAME TYPE IP', 'Create a new DNS record'
-      def create(zone_id, name, type, ip)
-        record = get_zone(zone_id).records.create(:name => name, :type => type, :ip => ip)
+      desc 'create ZONE_ID NAME TYPE IP [TTL]', 'Create a new DNS record'
+      def create(zone_id, name, type, ip, ttl=3600)
+        record = get_zone(zone_id).records.create(:name => name, :type => type, :ip => ip, :ttl => ttl)
         puts "Record ID: #{record.id}"
         puts "Status: #{record.status}"
       end
