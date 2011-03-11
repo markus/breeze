@@ -2,11 +2,11 @@ module Breeze
 
   class List < Veur
 
-    default_task :all
-    desc :all, 'List all AWS resources that the current account can control with breeze'
-    def all
+    desc :cloud_resources, 'List all cloud resources that the current account can control with breeze'
+    def cloud_resources
       images
       servers
+      addresses
       volumes
       db_servers
       dns_zones
@@ -28,6 +28,13 @@ module Breeze
         fog.servers.map { |i|
           [i.name, i.id, i.public_ip_address, i.image_id, i.flavor_id, i.availability_zone, i.state]
         }
+    end
+
+    desc :addresses, 'List allocated ip addresses'
+    def addresses
+      report "ALLOCATED IP ADDRESSES",
+        ['Address', 'Server'],
+        fog.addresses.map{ |a| [a.public_ip, a.server_id] }
     end
 
     desc :volumes, 'Describe block store volumes (EBS)'
