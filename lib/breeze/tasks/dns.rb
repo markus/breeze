@@ -50,15 +50,14 @@ module Breeze
 
       desc 'create ZONE_ID NAME TYPE IP [TTL]', 'Create a new DNS record'
       def create(zone_id, name, type, ip, ttl=3600)
-        record = get_zone(zone_id).records.create(:name => name, :type => type, :ip => ip, :ttl => ttl)
-        puts "Record ID: #{record.id}"
-        puts "Status: #{record.status}"
+        get_zone(zone_id).records.create(:name => name, :type => type, :ip => ip, :ttl => ttl)
       end
 
       desc 'destroy ZONE_ID NAME [TYPE]', 'Destroy a DNS record'
+      method_options :force => false
       def destroy(zone_id, name, type=nil)
         records = get_zone(zone_id).records.select{ |r| r.name == name && (type.nil? || r.type == type) }
-        if accept?("Destroy #{records.size} record#{records.size == 1 ? '' : 's'}?")
+        if force_or_accept?("Destroy #{records.size} record#{records.size == 1 ? '' : 's'}?")
           records.each(&:destroy)
         end
       end

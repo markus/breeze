@@ -11,8 +11,11 @@ module Breeze
     end
 
     desc 'release IP', 'Release the ip address'
-    def destroy(ip)
-      fog.addresses.get(ip).destroy
+    method_options :force => false
+    def release(ip)
+      if force_or_accept?("Release IP #{ip}?")
+        fog.addresses.get(ip).destroy
+      end
     end
 
   end

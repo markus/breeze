@@ -16,17 +16,16 @@ module Breeze
     method_options :force => false
     def destroy(instance_id)
       server = fog.servers.get(instance_id)
-      if options[:force] or accept?("Terminate server #{server.display_name}?")
-        print "Instance #{server.id} currently #{server.state}... "
+      if force_or_accept?("Terminate server #{server.display_name}?")
         server.destroy
-        puts "now #{server.reload.state}."
       end
     end
 
     private
 
-    def create_server(options)
-      puts("Launch options: #{options.inspect}")
+    def create_server(options=nil)
+      options ||= CONFIGURATION[:default_server_options]
+      # puts("Server options: #{options.inspect}")
       server = fog.servers.create(options)
       print "Launching server #{server.id}"
       wait_until('running!') { server.running? }

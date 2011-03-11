@@ -27,6 +27,11 @@ module Breeze
       ! (ask("#{question} [YES/no] >") =~ /n/i)
     end
 
+    # don't ask questions if given the --force option
+    def force_or_accept?(question)
+      options[:force] or accept?(question)
+    end
+
     # Print out dots while waiting for something.
     # Usage:
     #   print "My task is running..."
