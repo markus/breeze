@@ -46,7 +46,6 @@ module Breeze
 
     end
 
-    # This stuff is crazy. It should be deleted as soon as Route 53 gets a web interface.
     class Record < Zone
 
       desc 'create ZONE_ID NAME TYPE IP [TTL]', 'Create a new DNS record'
@@ -56,9 +55,9 @@ module Breeze
         puts "Status: #{record.status}"
       end
 
-      desc 'destroy ZONE_ID NAME [TYPE] [IP]', 'Destroy a DNS record'
-      def destroy(zone_id, name, type=nil, ip=nil)
-        records = get_zone(zone_id).records.select{ |r| r.name == name && (type.nil? || r.type == type) && (ip.nil? || r.ip == ip) }
+      desc 'destroy ZONE_ID NAME [TYPE]', 'Destroy a DNS record'
+      def destroy(zone_id, name, type=nil)
+        records = get_zone(zone_id).records.select{ |r| r.name == name && (type.nil? || r.type == type) }
         if accept?("Destroy #{records.size} record#{records.size == 1 ? '' : 's'}?")
           records.each(&:destroy)
         end
