@@ -7,7 +7,7 @@ module Fog
     class Compute::Server
 
       def name
-        tags['Name']
+        breeze_data['name'] || tags['Name']
       end
 
       def display_name
@@ -16,6 +16,16 @@ module Fog
 
       def running? ; current_state == 'running' ; end
       def stopped? ; current_state == 'stopped' ; end
+
+      # Get or set meta data that is saved in a tag.
+      # NOTICE: the tag is not saved automatically!
+      def breeze_data(new_values=nil)
+        if new_values
+          tags['breeze-data'] = new_values.map{ |k,v| v.nil? ? v : "#{k}:#{v}" }.compact.join(';')
+        else
+          Hash[tags['breeze-data'].to_s.split(';').map{ |s| s.split(':') }]
+        end
+      end
 
       private
 
