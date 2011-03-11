@@ -53,8 +53,9 @@ module Breeze
       raise "COMMAND FAILED: #{cmd}" unless $?.nil? || $?.success?
     end
 
-    # ERB templates may need cluster_name and host_name
-    def cluster_name ; nil                ; end
-    def host_name    ; Socket.gethostname ; end
+    # a helper for ERB templates
+    def host_name
+      Socket.gethostname
+    end
   end
 end

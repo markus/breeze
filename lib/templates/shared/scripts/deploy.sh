@@ -11,12 +11,14 @@ exec 1>$HOME/deploy.log 2>&1
 source $HOME/credentials.sh
 
 # command line arguments with default values
-BRANCH=${1:-master} # can also be the name of a tag
-APP_NAME=${2:-YOUR-APP}
-BASE_URL=${3:-"https://github.com/YOUR-LOGIN/YOUR-APP/tarball/$BRANCH"}
+PUBLIC_SERVER_NAME=$1
+DB_SERVER=$2
+BRANCH=${3:-master} # can also be the name of a tag
+APP_NAME=${4:-YOUR-APP}
+BASE_URL=${5:-"https://github.com/YOUR-LOGIN/YOUR-APP/tarball/$BRANCH"}
 # NOTICE: user_data is readable by anyone who can log in but
 # credentials.sh is readable only by user ubuntu (and sudoers)
-QUERY_STRING=${4:-"?login=YOUR-GITHUB-LOGIN&token=$GITHUB_TOKEN"}
+QUERY_STRING=${6:-"?login=YOUR-GITHUB-LOGIN&token=$GITHUB_TOKEN"}
 
 DOWNLOAD_URL="$BASE_URL$QUERY_STRING"
 DEPLOY_PATH=/srv/$APP_NAME
