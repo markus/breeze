@@ -13,6 +13,12 @@ Breeze::CONFIGURATION = {
     :aws_secret_access_key => 'YOUR-SECTET-ACCESS-KEY'
   },
 
+  # Remote and upload commands are required in order to create a server image or deploy
+  # an application. Arguments marked with %{} are automatically replaced when the
+  # commands are used. Use "ssh -i /path/to/key" if not using your default ssh key.
+  :remote_command => "ssh ubuntu@%{host} '%{command}'",
+  :upload_command => 'rsync -v %{file_pattern} ubuntu@%{host}:%{remote_path}',
+
   # Default server options are needed when launching new servers.
   :default_server_options => {
     :image_id           => 'YOUR-PRIVATE-AMI-OR-A-PUBLIC-ONE',

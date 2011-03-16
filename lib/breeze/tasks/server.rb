@@ -1,3 +1,5 @@
+require 'resolv'
+
 module Breeze
 
   # Dealing with server instances.
@@ -30,6 +32,40 @@ module Breeze
       print "Launching server #{server.id}"
       wait_until('running!') { server.running? }
       return server
+    end
+
+    def wait_until_host_is_available(host)
+      if Resolv.getaddresses(host).empty?
+        print("Waiting for #{host} to resolve")
+        wait_until('ready!') { Resolv.getaddresses(host).any? }
+      end
+      return true if remote_is_available?(host)
+      print("Waiting for #{host} to accept connections")
+      wait_until('ready!') { remote_is_available?(host) }
+    end
+
+    def remote_is_available?(host)
+      execute(:remote_command, :command => 'exit', :host => host)
+    end
+
+    def remote(command, args)
+      args[:command] = command
+      execute(:remote_command, args)
+    end
+
+    def upload(file_pattern, args)
+      args[:file_pattern] = file_pattern
+      execute(:upload_command, args)
+    end
+
+    def execute(command, args)
+      command = CONFIGURATION[command] if command.is_a?(Symbol)
+    #   system(command % args)
+    # rescue ArgumentError # for ruby 1.8 compatibility
+      args.each do |key, value|
+        command = command.gsub("%{#{key}}", value)
+      end
+      system(command)
     end
 
   end
