@@ -6,14 +6,15 @@ module Breeze
 
   # The idea was stolen from rubber: https://github.com/wr0ngway/rubber
   # but this is a simple implementation with no support for roles and additives.
-  class ErbConf
+  # See https://github.com/wr0ngway/rubber/wiki/Configuration
+  class Configuration < Veur
 
-    # Transform and deploy ERB based configuration files to the local file system.
-    # This is almost compatible with https://github.com/wr0ngway/rubber/wiki/Configuration
-    # but there is no support for @additive and rubber configuration.
-    def deploy(force=false)
+    desc 'deploy_to_localhost',
+      'Transform and deploy server configuration files to the local file system based on ERB templates in config/server'
+    method_option :force, :default => false, :desc => 'Overwrite and execute @post commands even if files would not change'
+    def deploy_to_localhost
       Dir['config/breeze/configs/**/*'].each do |path|
-        transform_and_deploy(path, force) unless File.directory?(path)
+        transform_and_deploy(path, options[:force]) unless File.directory?(path)
       end
     end
 
@@ -57,5 +58,6 @@ module Breeze
     def host_name
       Socket.gethostname
     end
+
   end
 end
