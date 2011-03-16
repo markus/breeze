@@ -16,9 +16,9 @@ module Breeze
         end
       end
       server = create_server
-      thor("server:address:create #{server.id}")
-      thor("server:tag:create #{server.id} breeze-data '#{server.breeze_data(:name => public_server_name, :db => db_server_name)}'")
+      thor("server:address:create #{server.id}") if options[:elastic_ip]
       thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+      thor("server:tag:create #{server.id} breeze-data '#{server.breeze_data(:name => public_server_name, :db => db_server_name)}'")
     end
 
     desc 'stop PUBLIC_SERVER_NAME', 'Destroy web server and db'
@@ -39,6 +39,16 @@ module Breeze
     end
 
     private
+
+    def db_endpoint(db_server_name)
+      db = rds.servers.get(db_server_name)
+      return nil unless db
+      unless db.ready?
+        print('Waiting for the db')
+        wait_until { db.reload; db.ready? }
+      end
+      db.endpoint['Address']
+    end
 
     def ip(server)
       address = server.addresses.first

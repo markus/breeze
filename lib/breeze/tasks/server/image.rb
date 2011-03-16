@@ -10,7 +10,7 @@ module Breeze
     def create
       options[:block_device_mapping] = [{:device_name => '/dev/sda1', :ebs_volume_size => options.delete(:root_device_size)}]
       server = create_server(options)
-      Breeze.prepare_private_image(server.public_ip_address)
+      prepare_private_image(server.public_ip_address)
       print('Stopping the server before saving a snapshot')
       server.stop
       wait_until('stopped!') { server.stopped? }
