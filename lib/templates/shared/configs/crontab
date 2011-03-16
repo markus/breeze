@@ -1,5 +1,5 @@
 <%
-  @read_cmd = 'crontab -l'
+  @read_cmd = 'crontab -l | crontab -'
   @write_cmd = 'crontab -'
 %>
 
