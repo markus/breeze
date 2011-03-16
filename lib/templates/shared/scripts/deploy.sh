@@ -6,7 +6,8 @@ set -e -x
 shopt -s expand_aliases
 
 HOME=/home/ubuntu
-exec 1>$HOME/deploy.log 2>&1
+# exec 1>$HOME/deploy.log 2>&1
+exec > >(tee $HOME/deploy.log) 2>&1
 
 source $HOME/credentials.sh
 
