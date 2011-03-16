@@ -36,5 +36,5 @@ sudo mv $HOME/*$APP_NAME* $DEPLOY_PATH
 sudo chown -R rails $DEPLOY_PATH
 cd $DEPLOY_PATH
 sudo bundle install
-sudo PUBLIC_SERVER_NAME=$PUBLIC_SERVER_NAME DB_SERVER=$DB_SERVER DB_PASSWORD=$DB_PASSWORD thor configuration:deploy_to_localhost
+sudo PUBLIC_SERVER_NAME=$PUBLIC_SERVER_NAME DB_SERVER=$DB_SERVER thor configuration:deploy_to_localhost
 sudo /etc/init.d/monit start

@@ -1,0 +1,16 @@
+<%
+  @path = "#{CONFIGURATION[:app_path]}/config/database.yml"
+  @owner = 'rails'
+  @perms = 0600
+
+  conf = CONFIGURATION[:default_db_options]
+%>
+# Database configuration
+
+production:
+  adapter: mysql2
+  host: <%= ENV['DB_SERVER'] %>
+  database: MY-DB-NAME
+  encoding: utf8
+  username: <%= conf[:master_username] %>
+  password: <%= conf[:password] %>
