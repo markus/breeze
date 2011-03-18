@@ -9,6 +9,7 @@ module Breeze
     def init(profile='rails_and_image_magick')
       raise(ArgumentError, "*#{profile}* is not supported") unless profile_exists?(profile)
       copy_file('Thorfile')
+      copy_file('maintenance.html', "#{config_dir}/maintenance.html")
       copy_file('user_data.sh', "#{config_dir}/user_data.sh")
       directories('shared', profile_path(profile))
       chmod_600('Thorfile', "#{config_dir}/scripts/credentials.sh")

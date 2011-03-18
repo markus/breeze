@@ -25,7 +25,7 @@ module Breeze
     method_options :force => false
     def stop(public_server_name)
       dbs_to_destroy = []
-      fog.servers.select{ |s| s.name == public_server_name }.each do |server|
+      active_servers(public_server_name).each do |server|
         server.addresses.each do |address|
           thor("server:address:release #{address.public_ip}")
         end
@@ -38,7 +38,27 @@ module Breeze
       end
     end
 
+    desc 'disable PUBLIC_SERVER_NAME', 'Upload system/maintenance.html to web servers'
+    def disable(public_server_name)
+      on_each_server("cd #{CONFIGURATION[:app_path]} && cp config/breeze/maintenance.html public/system/", public_server_name)
+    end
+
+    desc 'enable PUBLIC_SERVER_NAME', 'Remove system/maintenance.html from web servers'
+    def enable(public_server_name)
+      on_each_server("rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html", public_server_name)
+    end
+
     private
+
+    def active_servers(public_server_name)
+      fog.servers.select{ |s| s.name == public_server_name and not s.spare_for_rollback? }
+    end
+
+    def on_each_server(command, public_server_name)
+      active_servers(public_server_name).each do |server|
+        remote(command, :host => ip(server))
+      end
+    end
 
     def db_endpoint(db_server_name)
       db = rds.servers.get(db_server_name)
