@@ -5,7 +5,7 @@
 download ftp://ftp.ruby-lang.org//pub/ruby/1.9/$RUBY_PACKAGE.tar.gz
 extract_and_install $RUBY_PACKAGE
 sudo gem update --system
-sudo gem install --no-ri --no-rdoc bundler passenger
+sudo gem install --no-ri --no-rdoc bundler passenger breeze
 
 # install nginx and passenger
 sudo passenger-install-nginx-module --auto --auto-download --prefix=/usr --extra-configure-flags="$NGINX_OPTIONS"
