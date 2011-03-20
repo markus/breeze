@@ -1,7 +1,8 @@
 <%
   @path = "#{CONFIGURATION[:app_path]}/config/database.yml"
   @owner = 'rails'
-  @perms = 0600
+  @group = 'rails'
+  @perms = 0640
   @post = 'rake db:migrate'
 
   conf = CONFIGURATION[:default_db_options]

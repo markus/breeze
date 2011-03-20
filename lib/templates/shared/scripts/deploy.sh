@@ -28,7 +28,9 @@ DEPLOY_PATH=/srv/$APP_NAME
 if [ -d $DEPLOY_PATH ]; then exit; fi
 
 # add a user (rails) to run your application
-if ! id rails &> /dev/null; then sudo adduser --system --group rails; fi
+sudo adduser --system --group rails
+# add user ubuntu to the rails group so that ubuntu can read database.yml
+sudo usermod --groups rails ubuntu
 
 wget -q --no-check-certificate --directory-prefix=$HOME --output-document=tarball.tar.gz $DOWNLOAD_URL
 tar --directory $HOME -xzf tarball.tar.gz
