@@ -5,7 +5,7 @@ module Breeze
   class App < Server
 
     desc 'start PUBLIC_SERVER_NAME [DB_SERVER_NAME] [DB_NAME]', 'Start a new app with web server and db'
-    method_options :db => true, :db_to_clone => :string, :elastic_ip => true, :dns_ttl => 60
+    method_options :db => true, :db_to_clone => :string, :elastic_ip => true, :dns_ttl => 60, :deploy_branch => :string
     def start(public_server_name, db_server_name=nil, db_name=nil)
       if options[:db]
         raise 'DB_SERVER_NAME is required unless --no-db is given.' if db_server_name.nil?
@@ -16,9 +16,10 @@ module Breeze
         end
       end
       server = create_server
+      server.breeze_data(:name => public_server_name, :db => db_server_name)
       thor("server:address:create #{server.id}") if options[:elastic_ip]
       thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
-      thor("server:tag:create #{server.id} breeze-data '#{server.breeze_data(:name => public_server_name, :db => db_server_name)}'")
+      deploy_command([server], public_server_name, db_server_name, options[:deploy_branch]) if options[:deploy_branch]
     end
 
     desc 'stop PUBLIC_SERVER_NAME', 'Destroy web server and db'
@@ -40,24 +41,76 @@ module Breeze
 
     desc 'disable PUBLIC_SERVER_NAME', 'Upload system/maintenance.html to web servers'
     def disable(public_server_name)
-      on_each_server("cd #{CONFIGURATION[:app_path]} && cp config/breeze/maintenance.html public/system/", public_server_name)
+      on_each_server(disable_app_command, public_server_name)
     end
 
     desc 'enable PUBLIC_SERVER_NAME', 'Remove system/maintenance.html from web servers'
     def enable(public_server_name)
-      on_each_server("rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html", public_server_name)
+      on_each_server(enable_app_command, public_server_name)
+    end
+
+    desc 'deploy PUBLIC_SERVER_NAME DB_SERVER_NAME BRANCH', 'Deploy a new version by replacing old servers with new ones'
+    def deploy(public_server_name, db_server_name, branch)
+      old_server = active_servers(public_server_name).first
+      new_server = create_server
+      new_server.breeze_data(:name => public_server_name, :db => db_server_name)
+      deploy_command([new_server], public_server_name, db_server_name, branch)
+      puts("The new server should soon be available at #{ip(new_server)}.")
+      if ask("Ready to continue and move the elastic_ip for #{public_server_name} to the new server? [YES/rollback] >") =~ /r|n/i
+        remote("sudo shutdown -h +#{CONFIGURATION[:rollback_window]}", :host => ip(old_server))
+        old_server.spare_for_rollback!
+        move_addresses(old_server, new_server)
+      else
+        new_server.destroy
+      end
+    end
+
+    desc 'rollback PUBLIC_SERVER_NAME', 'Rollback a deploy'
+    def rollback(public_server_name)
+      old_server = spare_servers(public_server_name).first
+      remote('sudo shutdown -c', :host => ip(old_server))
+      new_server = active_servers(public_server_name).first
+      remote(disable_app_command, :host => ip(new_server))
+      move_addresses(new_server, old_server)
+      old_server.breeze_state('reactivated')
+      new_server.breeze_state('abandoned_due_to_rollback')
+      if accept?('Destroy the abandoned server NOW?')
+        new_server.destroy
+      end
     end
 
     private
 
+    def move_addresses(from_server, to_server)
+      from_server.addresses.each do |address|
+        thor("server:address:associate #{address.public_ip} #{to_server.id}")
+      end
+    end
+
+    def servers(public_server_name)
+      fog.servers.select{ |s| s.name == public_server_name }
+    end
+
+    def spare_servers(public_server_name)
+      servers(public_server_name).select{ |s| s.spare_for_rollback? }
+    end
+
     def active_servers(public_server_name)
-      fog.servers.select{ |s| s.name == public_server_name and not s.spare_for_rollback? }
+      servers(public_server_name).select{ |s| ! s.spare_for_rollback? }
     end
 
     def on_each_server(command, public_server_name)
       active_servers(public_server_name).each do |server|
         remote(command, :host => ip(server))
       end
+    end
+
+    def disable_app_command
+      "cd #{CONFIGURATION[:app_path]} && cp config/breeze/maintenance.html public/system/"
+    end
+
+    def enable_app_command
+      "rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html"
     end
 
     def db_endpoint(db_server_name)

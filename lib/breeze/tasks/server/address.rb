@@ -18,5 +18,10 @@ module Breeze
       end
     end
 
+    desc 'associate IP NEW_SERVER_ID', 'Associate an existing IP with a new server'
+    def associate(ip, server_id)
+      fog.associate_address(server_id, ip)
+    end
+
   end
 end

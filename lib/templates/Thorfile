@@ -19,6 +19,10 @@ Breeze::CONFIGURATION = {
   :remote_command => "ssh ubuntu@%{host} '%{command}'",
   :upload_command => 'rsync -v %{file_pattern} ubuntu@%{host}:%{remote_path}',
 
+  # :rollback_window specifies the number of minutes to keep old instances running after new ones
+  # have been deployed. Rollback is no longer possible when the old instances have been destroyed.
+  :rollback_window => 60,
+
   # Default server options are needed when launching new servers.
   :default_server_options => {
     :image_id           => 'YOUR-PRIVATE-AMI-OR-A-PUBLIC-ONE',
@@ -78,9 +82,11 @@ end
 
 class Breeze::App
   private
-  def deploy_command(server_name, db_server_name, branch)
-    wait_until_host_is_available(server_name)
-    remote("/home/ubuntu/deploy.sh #{server_name} #{db_endpoint(db_server_name)} #{branch}", :host => server_name)
+  def deploy_command(servers, public_server_name, db_server_name, branch)
+    servers.each do |server|
+      wait_until_host_is_available(ip(server))
+      remote("/home/ubuntu/deploy.sh #{public_server_name} #{db_endpoint(db_server_name)} #{branch}", :host => ip(server))
+    end
   end
 end
 
@@ -92,8 +98,7 @@ class Staging < Breeze::App
 
   desc 'start', 'Start web server and db for staging'
   def start
-    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} --db-to-clone=#{Production::DB_SERVER_NAME}")
-    deploy_command(PUBLIC_SERVER_NAME, DB_SERVER_NAME, 'master')
+    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} --db-to-clone=#{Production::DB_SERVER_NAME} --deploy-branch=master")
   end
 
   desc 'stop', 'Stop staging and destroy server and db'
@@ -111,8 +116,7 @@ class Production < Breeze::App
 
   desc 'start', 'Start web server and db for production'
   def start
-    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} crags --dns-ttl=300")
-    deploy_command(PUBLIC_SERVER_NAME, DB_SERVER_NAME, 'stable')
+    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} crags --dns-ttl=300 --deploy-branch=stable")
   end
 
 end

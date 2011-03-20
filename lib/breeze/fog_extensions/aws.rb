@@ -18,12 +18,30 @@ module Fog
       def stopped? ; current_state == 'stopped' ; end
 
       # Get or set meta data that is saved in a tag.
-      # NOTICE: the tag is not saved automatically!
       def breeze_data(new_values=nil)
         if new_values
           tags['breeze-data'] = new_values.map{ |k,v| v.nil? ? v : "#{k}:#{v}" }.compact.join(';')
+          # thor("server:tag:create #{id} breeze-data '#{tags['breeze-data']}'")
+          Breeze::Server::Tag.new.create(id, 'breeze-data', tags['breeze-data'])
         else
           Hash[tags['breeze-data'].to_s.split(';').map{ |s| s.split(':') }]
+        end
+      end
+
+      def spare_for_rollback!
+        breeze_state('spare_for_rollback')
+      end
+
+      def spare_for_rollback?
+        breeze_state == 'spare_for_rollback'
+      end
+
+      # Get or set the state tag.
+      def breeze_state(new_state=nil)
+        if new_state
+          breeze_data(breeze_data.merge('state' => new_state))
+        else
+          breeze_data['state']
         end
       end
 

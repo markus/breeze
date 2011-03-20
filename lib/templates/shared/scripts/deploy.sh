@@ -36,6 +36,6 @@ tar --directory $HOME -xzf tarball.tar.gz
 sudo mv $HOME/*$APP_NAME* $DEPLOY_PATH
 sudo chown -R rails $DEPLOY_PATH
 cd $DEPLOY_PATH
-sudo bundle install
+sudo bundle install --without=test development
 sudo PUBLIC_SERVER_NAME=$PUBLIC_SERVER_NAME DB_SERVER=$DB_SERVER thor configuration:deploy_to_localhost
 sudo /etc/init.d/monit start

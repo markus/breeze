@@ -2,7 +2,7 @@ module Breeze
 
   class Server::Tag < Veur
 
-    desc 'create SERVER_ID KEY VALUE', 'Create a tag'
+    desc 'create SERVER_ID KEY VALUE', 'Create or update a tag'
     def create(server_id, key, value)
       fog.tags.create(:resource_id => server_id, :key => key, :value => value)
     end
