@@ -45,7 +45,7 @@ module Breeze
     end
 
     def remote_is_available?(host)
-      execute(:remote_command, :command => 'exit', :host => host)
+      execute(:remote_available?, :host => host)
     end
 
     def remote(command, args)

@@ -16,6 +16,7 @@ Breeze::CONFIGURATION = {
   # Remote and upload commands are required in order to create a server image or deploy
   # an application. Arguments marked with %{} are automatically replaced when the
   # commands are used. Use "ssh -i /path/to/key" if not using your default ssh key.
+  :remote_available? => 'ssh -q ubuntu@%{host} exit',
   :remote_command => "ssh ubuntu@%{host} '%{command}'",
   :upload_command => 'rsync -v %{file_pattern} ubuntu@%{host}:%{remote_path}',
 

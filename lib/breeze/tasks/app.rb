@@ -57,24 +57,25 @@ module Breeze
       deploy_command([new_server], public_server_name, db_server_name, branch)
       puts("The new server should soon be available at #{ip(new_server)}.")
       if ask("Ready to continue and move the elastic_ip for #{public_server_name} to the new server? [YES/rollback] >") =~ /r|n/i
-        remote("sudo shutdown -h +#{CONFIGURATION[:rollback_window]}", :host => ip(old_server))
+        new_server.destroy
+      else
+        remote("sudo shutdown -h +#{CONFIGURATION[:rollback_window]} &", :host => ip(old_server))
         old_server.spare_for_rollback!
         move_addresses(old_server, new_server)
-      else
-        new_server.destroy
       end
     end
 
     desc 'rollback PUBLIC_SERVER_NAME', 'Rollback a deploy'
     def rollback(public_server_name)
       old_server = spare_servers(public_server_name).first
+      raise "no running spare server found for #{public_server_name}" unless old_server
       remote('sudo shutdown -c', :host => ip(old_server))
       new_server = active_servers(public_server_name).first
       remote(disable_app_command, :host => ip(new_server))
       move_addresses(new_server, old_server)
       old_server.breeze_state('reactivated')
       new_server.breeze_state('abandoned_due_to_rollback')
-      if accept?('Destroy the abandoned server NOW?')
+      if accept?('Ready to destroy the abandoned server now?')
         new_server.destroy
       end
     end
@@ -87,16 +88,16 @@ module Breeze
       end
     end
 
-    def servers(public_server_name)
-      fog.servers.select{ |s| s.name == public_server_name }
+    def running_servers(public_server_name)
+      fog.servers.select{ |s| s.ready? and s.name == public_server_name }
     end
 
     def spare_servers(public_server_name)
-      servers(public_server_name).select{ |s| s.spare_for_rollback? }
+      running_servers(public_server_name).select{ |s| s.spare_for_rollback? }
     end
 
     def active_servers(public_server_name)
-      servers(public_server_name).select{ |s| ! s.spare_for_rollback? }
+      running_servers(public_server_name).select{ |s| not s.spare_for_rollback? }
     end
 
     def on_each_server(command, public_server_name)

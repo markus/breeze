@@ -34,10 +34,10 @@ sudo usermod --groups rails ubuntu
 
 wget -q --no-check-certificate --directory-prefix=$HOME --output-document=tarball.tar.gz $DOWNLOAD_URL
 tar --directory $HOME -xzf tarball.tar.gz
-
 sudo mv $HOME/*$APP_NAME* $DEPLOY_PATH
-sudo chown -R rails $DEPLOY_PATH
+
 cd $DEPLOY_PATH
-sudo bundle install --without=test development
+bundle install --deployment --without=test development
+sudo chown -R rails:rails $DEPLOY_PATH
 sudo PUBLIC_SERVER_NAME=$PUBLIC_SERVER_NAME DB_SERVER=$DB_SERVER thor configuration:deploy_to_localhost
 sudo /etc/init.d/monit start
