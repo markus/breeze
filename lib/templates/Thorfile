@@ -39,7 +39,7 @@ Breeze::CONFIGURATION = {
     :root_device_size => 15 # in GB
   },
 
-  # machine images owned by this account are included in list:images (provided that you have access to them)
+  # machine images owned by this account are included in describe:images (provided that you have access to them)
   :image_owner => 'YOUR-ACCOUNT-ID-WITHOUT-DASHES', # canonical: '099720109477'
 
   # db configuration is required in order to use Amazon RDS

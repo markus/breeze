@@ -1,6 +1,8 @@
 module Breeze
 
-  class List < Veur
+  class Describe < Veur
+
+    default_task :cloud_resources
 
     desc :cloud_resources, 'List all cloud resources that the current account can control with breeze'
     def cloud_resources

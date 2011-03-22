@@ -16,7 +16,7 @@ module Breeze
       print('Stopping the server before saving a snapshot')
       server.stop
       wait_until('stopped!') { server.stopped? }
-      thor('list:images')
+      thor('describe:images')
       puts('===== Old server images are listed above. Give a name to the new image. =====')
       # image = fog.images.create(:name => ask('Image name >'), :instance_id => server.id)
       fog.create_image(server.id, ask('Image name >'), '')
@@ -25,7 +25,7 @@ module Breeze
       # puts("===> Created image #{image.id} and terminated temporary server #{server.id}.")
       puts("===> Created a new server image and terminated temporary server #{server.id}.")
       puts
-      puts("NOTICE: it may take a while before the new image shows up in list:images")
+      puts("NOTICE: it may take a while before the new image shows up in describe:images")
     end
 
   end
