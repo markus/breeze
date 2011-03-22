@@ -107,7 +107,7 @@ module Breeze
     end
 
     def disable_app_command
-      "cd #{CONFIGURATION[:app_path]} && cp config/breeze/maintenance.html public/system/"
+      "cd #{CONFIGURATION[:app_path]} && mkdir -p public/system && cp config/breeze/maintenance.html public/system/"
     end
 
     def enable_app_command
