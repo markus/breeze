@@ -69,9 +69,18 @@ module Breeze
     def rollback(public_server_name)
       old_server = spare_servers(public_server_name).first
       raise "no running spare server found for #{public_server_name}" unless old_server
+      if ip(old_server)
+        temp_ip = nil
+      else
+        puts("Old server does not have a public ip. Allocating a temporary address:")
+        thor("server:address:create #{old_server.id}")
+        old_server.reload until old_server.addresses.first
+        temp_ip = ip(old_server)
+      end
       remote('sudo shutdown -c', :host => ip(old_server))
       new_server = active_servers(public_server_name).first
       remote(disable_app_command, :host => ip(new_server))
+      thor("server:address:release #{temp_ip}") if temp_ip
       move_addresses(new_server, old_server)
       old_server.breeze_state('reactivated')
       new_server.breeze_state('abandoned_due_to_rollback')
