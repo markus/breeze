@@ -17,7 +17,7 @@ PACKAGES="$SYSTEM_PACKAGES $DB_CLIENT_PACKAGES $RUBY_BUILD_DEPENDENCIES $NGINX_A
 
 # the rest is used by install_cust.sh
 RUBY_PACKAGE=ruby-1.9.2-p180
-IMAGE_MAGICK_PACKAGE=ImageMagick-6.6.8-5
+IMAGE_MAGICK_PACKAGE=ImageMagick-6.6.8-6
 IMAGE_MAGICK_OPTIONS='--disable-static --with-modules --without-perl --without-magick-plus-plus --with-quantum-depth=8'
 NGINX_OPTIONS="\
   --conf-path=/etc/nginx/nginx.conf \
