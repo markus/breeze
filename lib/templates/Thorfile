@@ -67,10 +67,10 @@ Breeze::CONFIGURATION = {
 # with the "thor help" command.
 require 'breeze/tasks'
 
+# prepare_private_image is called from server:image:create. Modify this and/or the scripts
+# that are uploaded in order to create your own private machine image.
 class Breeze::Server::Image
   private
-  # This method is called from server:image:create. Modify this and/or the scripts that
-  # are uploaded in order to create your own private machine image.
   def prepare_private_image(ip_address)
     wait_until_host_is_available(ip_address)
     puts("Uploading scripts...")
@@ -79,8 +79,7 @@ class Breeze::Server::Image
   end
 end
 
-# You can define staging:start etc. with fixed parameters below.
-
+# deploy_command is called from app:start and app:deploy.
 class Breeze::App
   private
   def deploy_command(servers, public_server_name, db_server_name, branch)
@@ -91,15 +90,18 @@ class Breeze::App
   end
 end
 
-# thor staging:start and staging:stop
+# Define staging:start etc. below. The constants are also needed by
+# inherited tasks: deploy, rollback, enable and disable.
+
 class Staging < Breeze::App
 
   PUBLIC_SERVER_NAME = 'staging.example.com'
   DB_SERVER_NAME = 'staging-db'
+  BRANCH = 'master'
 
   desc 'start', 'Start web server and db for staging'
   def start
-    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} --db-to-clone=#{Production::DB_SERVER_NAME} --deploy-branch=master")
+    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} --db-to-clone=#{Production::DB_SERVER_NAME} --deploy-branch=#{BRANCH}")
   end
 
   desc 'stop', 'Stop staging and destroy server and db'
@@ -109,15 +111,15 @@ class Staging < Breeze::App
 
 end
 
-# thor production:start
 class Production < Breeze::App
 
-  PUBLIC_SERVER_NAME = 'production.example.com'
+  PUBLIC_SERVER_NAME = 'www.example.com'
   DB_SERVER_NAME = 'production-db'
+  BRANCH = 'stable'
 
   desc 'start', 'Start web server and db for production'
   def start
-    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} crags --dns-ttl=300 --deploy-branch=stable")
+    thor("app:start #{PUBLIC_SERVER_NAME} #{DB_SERVER_NAME} db_name --dns-ttl=300 --deploy-branch=#{BRANCH}")
   end
 
 end

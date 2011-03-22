@@ -142,5 +142,28 @@ module Breeze
       super(task + (options[:force] ? ' --force' : ''))
     end
 
+    # Don't know how to include or inherit thor tasks and descriptions.
+    # These may be included in Staging and Production.
+    def self.inherited(c)
+      c.class_eval <<-END_TASKS
+      desc 'deploy', 'Deploy a new version by replacing old servers with new ones'
+      def deploy
+        thor("app:deploy \#{PUBLIC_SERVER_NAME} \#{DB_SERVER_NAME} \#{BRANCH}")
+      end
+      desc 'rollback', 'Rollback the previous deploy'
+      def rollback
+        thor("app:rollback \#{PUBLIC_SERVER_NAME}")
+      end
+      desc 'disable', 'Copy maintenance.html to public/system/ on active web servers'
+      def disable
+        thor("app:disable \#{PUBLIC_SERVER_NAME}")
+      end
+      desc 'enable', 'Remove system/maintenance.html from active web servers'
+      def enable
+        thor("app:enable \#{PUBLIC_SERVER_NAME}")
+      end
+      END_TASKS
+    end
+
   end
 end
