@@ -127,7 +127,7 @@ set daemon  45             # check services at 45-second intervals
 ## usage. Each test specifies a resource, conditions and the action to be
 ## performed should a test fail.
 #
-check system <%= host_name %>
+check system <%= ENV['PUBLIC_SERVER_NAME'] %>--<%= host_name %>
   if loadavg (1min) > 4 then alert
   if loadavg (5min) > 2 then alert
   if memory usage > 75% then alert

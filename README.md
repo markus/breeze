@@ -53,7 +53,7 @@ These tasks call app tasks with fixed parameters.
     
     configuration
     -------------
-    thor configuration:deploy_to_localhost  # Transform and deploy server configuration files to the local file system based on...
+    thor configuration:deploy_to_localhost  # Transform and deploy server configuration files to the local file system based...
     
     db
     --

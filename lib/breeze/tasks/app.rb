@@ -80,7 +80,7 @@ module Breeze
       remote('sudo shutdown -c', :host => ip(old_server))
       new_server = active_servers(public_server_name).first
       remote(disable_app_command, :host => ip(new_server))
-      thor("server:address:release #{temp_ip}") if temp_ip
+      thor("server:address:release #{temp_ip} --force") if temp_ip
       move_addresses(new_server, old_server)
       old_server.breeze_state('reactivated')
       new_server.breeze_state('abandoned_due_to_rollback')
@@ -116,11 +116,13 @@ module Breeze
     end
 
     def disable_app_command
-      "cd #{CONFIGURATION[:app_path]} && mkdir -p public/system && cp config/breeze/maintenance.html public/system/"
+      file = "#{CONFIGURATION[:app_path]}/config/breeze/maintenance.html"
+      dir = "#{CONFIGURATION[:app_path]}/public/system"
+      "sudo mkdir -p #{dir} && sudo cp #{file} #{dir}"
     end
 
     def enable_app_command
-      "rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html"
+      "sudo rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html"
     end
 
     def db_endpoint(db_server_name)

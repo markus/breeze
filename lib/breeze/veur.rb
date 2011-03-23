@@ -52,7 +52,7 @@ module Breeze
     def report(title, columns, rows)
       table = capture_table([columns] + rows)
       title = "=== #{title} "
-      title << "=" * [(table.lines.max{|s| s.size }.size - title.size), 3].max
+      title << "=" * [(table.split($/).max{|a,b| a.size <=> b.size }.size - title.size), 3].max
       puts title
       puts table
     end
