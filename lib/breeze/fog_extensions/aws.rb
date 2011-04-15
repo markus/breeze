@@ -55,6 +55,10 @@ module Fog
     end
     class Compute::Image
 
+      def display_name
+        name or location
+      end
+
       def full_type
         "#{type}, #{architecture}, #{root_device_type}"
       end

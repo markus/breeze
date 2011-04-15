@@ -28,5 +28,16 @@ module Breeze
       puts("NOTICE: it may take a while before the new image shows up in describe:images")
     end
 
+    desc 'destroy IMAGE_ID', 'Deregister the image and destroy the related volume snapshot'
+    method_options :force => false
+    def destroy(*image_ids)
+      image_ids.each do |image_id|
+        image = fog.images.get(image_id)
+        if force_or_accept?("Destroy image #{image.display_name}?")
+          image.deregister(true)
+        end
+      end
+    end
+
   end
 end

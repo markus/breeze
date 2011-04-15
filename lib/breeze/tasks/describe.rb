@@ -19,7 +19,7 @@ module Breeze
       report 'MACHINE IMAGES',
         ['Name or Location', 'Image ID', 'Owner', 'Image Type', 'Public'],
         fog.images.all('Owner' => Breeze::CONFIGURATION[:image_owner]).map{ |i|
-          [i.name||i.location, i.id, i.owner_id, i.full_type, i.is_public]
+          [i.display_name, i.id, i.owner_id, i.full_type, i.is_public]
         }
     end
 
