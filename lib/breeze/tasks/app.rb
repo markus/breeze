@@ -58,7 +58,7 @@ module Breeze
       new_server = create_server
       new_server.breeze_data(:name => public_server_name, :db => db_server_name)
       deploy_command([new_server], public_server_name, db_server_name, branch)
-      puts("The new server should soon be available at #{ip(new_server)}.")
+      puts("The new server should soon be available at: #{ip(new_server)}")
       if ask("Ready to continue and move the elastic_ip for #{public_server_name} to the new server? [YES/rollback] >") =~ /r|n/i
         new_server.destroy
       else
