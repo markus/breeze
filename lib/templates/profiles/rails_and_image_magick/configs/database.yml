@@ -3,7 +3,7 @@
   @owner = 'rails'
   @group = 'rails'
   @perms = 0640
-  @post = 'rake db:migrate RAILS_ENV=production'
+  @post = "sudo -u #{@owner} rake db:migrate RAILS_ENV=production"
 
   conf = CONFIGURATION[:default_db_options]
 %>

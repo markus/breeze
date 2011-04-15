@@ -21,4 +21,5 @@ extract_and_install $IMAGE_MAGICK_PACKAGE "$IMAGE_MAGICK_OPTIONS"
 cat >> $HOME/.profile <<END_PROFILE
 # export RAILS_ENV=production
 # export EDITOR=vi
+# alias rails='sudo -E -u rails ./script/rails'
 END_PROFILE
