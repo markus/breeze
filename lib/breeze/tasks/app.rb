@@ -156,6 +156,10 @@ module Breeze
       super(task + (options[:force] ? ' --force' : ''))
     end
 
+    def log_in_to(server)
+      system("#{CONFIGURATION[:ssh][:ssh_command]} #{CONFIGURATION[:ssh][:ssh_user]}@#{server}")
+    end
+
     # Don't know how to include or inherit thor tasks and descriptions.
     # These may be included in Staging and Production.
     def self.inherited(c)
@@ -175,6 +179,10 @@ module Breeze
       desc 'enable', 'Remove system/maintenance.html from active web servers'
       def enable
         thor("app:enable \#{PUBLIC_SERVER_NAME}")
+      end
+      desc 'ssh', 'Log in with ssh'
+      def ssh
+        log_in_to(PUBLIC_SERVER_NAME)
       end
       END_TASKS
     end

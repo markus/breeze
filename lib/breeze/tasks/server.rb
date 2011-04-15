@@ -36,31 +36,45 @@ module Breeze
       return server
     end
 
-    def wait_until_host_is_available(host)
+    # Can take a host name or an ip address. Resolves the host name
+    # and returns the ip address if get_ip is passed in as true.
+    def wait_until_host_is_available(host, get_ip=false)
       if Resolv.getaddresses(host).empty?
         print("Waiting for #{host} to resolve")
         wait_until('ready!') { Resolv.getaddresses(host).any? }
       end
-      return true if remote_is_available?(host)
-      print("Waiting for #{host} to accept connections")
-      wait_until('ready!') { remote_is_available?(host) }
+      host = Resolv.getaddresses(host).first if get_ip
+      unless remote_is_available?(host)
+        print("Waiting for #{host} to accept connections")
+        wait_until('ready!') { remote_is_available?(host) }
+      end
+      return host
     end
 
     def remote_is_available?(host)
-      execute(:remote_available?, :host => host)
+      execute("%{ssh_command} -q %{ssh_user}@%{host} exit", :host => host)
     end
 
+    # Execute a command on the remote host. Args is a hash that must include :host.
     def remote(command, args)
       args[:command] = command
-      execute(:remote_command, args)
+      execute("%{ssh_command} %{ssh_user}@%{host} '%{command}'", args)
     end
 
     def upload(file_pattern, args)
       args[:file_pattern] = file_pattern
-      execute(:upload_command, args)
+      args[:remote_path] ||= './'
+      execute('rsync -e "%{ssh_command}" -v %{file_pattern} %{ssh_user}@%{host}:%{remote_path}', args)
+    end
+
+    def download(remote_path, args)
+      args[:remote_path] = remote_path
+      args[:local_path] ||= './'
+      execute('rsync -e "%{ssh_command}" -v %{ssh_user}@%{host}:%{remote_path} %{local_path}', args)
     end
 
     def execute(command, args)
+      args = CONFIGURATION[:ssh].merge(args)
       command = CONFIGURATION[command] if command.is_a?(Symbol)
     #   system(command % args)
     # rescue ArgumentError # for ruby 1.8 compatibility

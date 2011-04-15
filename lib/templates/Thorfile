@@ -13,12 +13,9 @@ Breeze::CONFIGURATION = {
     :aws_secret_access_key => 'YOUR-SECTET-ACCESS-KEY'
   },
 
-  # Remote and upload commands are required in order to create a server image or deploy
-  # an application. Arguments marked with %{} are automatically replaced when the
-  # commands are used. Use "ssh -i /path/to/key" if not using your default ssh key.
-  :remote_available? => 'ssh -q ubuntu@%{host} exit',
-  :remote_command => "ssh ubuntu@%{host} '%{command}'",
-  :upload_command => 'rsync -v %{file_pattern} ubuntu@%{host}:%{remote_path}',
+  # ssh_command and ssh_user are required in order to create a server image or deploy
+  # an application. Use "ssh -i /path/to/key" if not using your default ssh key.
+  :ssh => {:ssh_command => "ssh -o 'UserKnownHostsFile /dev/null'", :ssh_user => 'ubuntu'},
 
   # :rollback_window specifies the number of minutes to keep old instances running after new ones
   # have been deployed. Rollback is no longer possible when the old instances have been destroyed.
@@ -91,7 +88,7 @@ class Breeze::App
 end
 
 # Define staging:start etc. below. The constants are also needed by
-# inherited tasks: deploy, rollback, enable and disable.
+# inherited tasks: deploy, rollback, enable, disable and ssh.
 
 class Staging < Breeze::App
 
