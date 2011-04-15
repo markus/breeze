@@ -11,6 +11,7 @@ module Fog
       end
 
       def display_name
+        return "#{state}:#{name}" if name and state != 'running'
         name || public_ip_address || "#{state} #{flavor_id} #{id}"
       end
 
