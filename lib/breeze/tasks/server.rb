@@ -14,12 +14,14 @@ module Breeze
       create_server(options)
     end
 
-    desc 'destroy INSTANCE_ID', 'Terminate a running (or stopped) server instance'
+    desc 'destroy INSTANCE_ID [...]', 'Terminate a running (or stopped) server instance'
     method_options :force => false
-    def destroy(instance_id)
-      server = fog.servers.get(instance_id)
-      if force_or_accept?("Terminate server #{server.display_name}?")
-        server.destroy
+    def destroy(*instance_ids)
+      instance_ids.each do |instance_id|
+        server = fog.servers.get(instance_id)
+        if force_or_accept?("Terminate server #{server.display_name}?")
+          server.destroy
+        end
       end
     end
 
