@@ -17,9 +17,12 @@ module Breeze
       end
       server = create_server
       server.breeze_data(:name => public_server_name, :db => db_server_name)
-      thor("server:address:create #{server.id}") if options[:elastic_ip]
-      thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+      if options[:elastic_ip]
+        thor("server:address:create #{server.id}")
+        server.reload until server.addresses.first
+      end
       deploy_command([server], public_server_name, db_server_name, options[:deploy_branch]) if options[:deploy_branch]
+      thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
     end
 
     desc 'stop PUBLIC_SERVER_NAME', 'Destroy web server and db'
