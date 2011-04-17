@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Markus Bengts"]
   s.email       = ["markus.bengts@gmail.com"]
   s.homepage    = "https://github.com/markus/breeze"
-  s.summary     = %q{Thor tasks to manage AWS cloud computing resorces and deployments}
+  s.summary     = %q{Thor tasks to manage cloud computing resources and deployments}
   s.description = <<-END_DESCRIPTION
 Breeze makes it easy to automate server installation and configuration. It provides
 example scripts and configuration files that you can modify and keep in your revision
@@ -25,4 +25,6 @@ END_DESCRIPTION
 
   s.add_dependency('thor')
   s.add_dependency('fog', '>= 0.7')
+  s.add_development_dependency "cucumber"
+  s.add_development_dependency "aruba"
 end
