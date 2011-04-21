@@ -1,13 +1,16 @@
 # breeze
 
 Breeze provides some [Thor](https://github.com/wycats/thor) tasks and example scripts for managing cloud computing resources
-and deployments on [Amazon's AWS cloud](http://aws.amazon.com/). It uses [fog](https://github.com/geemus/fog) for the hard
-work so it should be fairly easy to add support for other cloud computing providers that are supported by fog.
+and deployments. Currently only [Amazon's AWS cloud](http://aws.amazon.com/) is supported, but breeze uses
+[fog](https://github.com/geemus/fog) for the hard work so it should be fairly easy to add support for other cloud computing
+providers that are supported by fog.
 
-Breeze implements zero downtime deployments by moving an elastic ip from one server to another. Db migrations have to be
+Breeze implements zero downtime deploys and rollbacks by moving an elastic ip from one server to another. Db migrations have to be
 compatible with the previous version.
 
 ## install
+
+Run the following commands to install breeze and initialize a new project with configuration file templates.
 
     gem install breeze
     cd your-project
@@ -21,10 +24,13 @@ for more information.
 
 ## create a server image
 
+The command below installs a server and saves a private server image. When this is fully automated it can be
+repeated with new software packages or a new OS version.
+
     thor server:image:create
 
 The default install.sh compiles ruby, passenger, nginx and image magick. It takes a long time
-(maybe half an hour on a small instance). It will prompt for the image name when completed.
+(maybe half an hour on a small instance) and it will prompt for the image name when completed.
 
 ## use it
 
@@ -37,7 +43,7 @@ The default install.sh compiles ruby, passenger, nginx and image magick. It take
     thor staging:start     # Start web server and db for staging
     thor staging:stop      # Stop staging and destroy server and db
 
-Define your staging and production in the Thorfile and the same tasks become available for both name spaces.
+Define your staging and production constants in the Thorfile and the same tasks become available for both name spaces.
 These tasks call app tasks with fixed parameters.
 
 ## plumbing commands
