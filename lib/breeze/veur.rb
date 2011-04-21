@@ -1,4 +1,4 @@
-require 'breeze/fog_extensions'
+require 'breeze/fog_wrapper'
 
 module Breeze
 
@@ -68,7 +68,7 @@ module Breeze
     end
 
     def fog
-      @fog ||= Fog::Compute.new(CONFIGURATION[:cloud_service])
+      @fog ||= Breeze::FogWrapper.connection(:compute)
     end
 
     def dns
@@ -76,10 +76,7 @@ module Breeze
     end
 
     def rds
-      return @rds if @rds
-      credentials = CONFIGURATION[:cloud_service].reject{ |k,v| k == :provider }
-      credentials[:region] = CONFIGURATION[:db_region]
-      @rds = Fog::AWS::RDS.new(credentials)
+      @rds ||= Breeze::FogWrapper.connection(:rds)
     end
 
   end
