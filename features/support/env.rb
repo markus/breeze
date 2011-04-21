@@ -30,4 +30,5 @@ system("echo 'Fog.mock!' >> #{thorfile_path}")
 # Clone the test app for each scenario.
 Before do
   system("cp -r #{template_dir} tmp/aruba")
+  @aruba_timeout_seconds = 5
 end

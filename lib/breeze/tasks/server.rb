@@ -33,6 +33,7 @@ module Breeze
       server = fog.servers.create(options)
       print "Launching server #{server.id}"
       wait_until('running!') { server.running? }
+      FogWrapper.flush_mock_data! if Fog.mocking?
       return server
     end
 
