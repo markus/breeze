@@ -40,11 +40,12 @@ module Breeze
     # Can take a host name or an ip address. Resolves the host name
     # and returns the ip address if get_ip is passed in as true.
     def wait_until_host_is_available(host, get_ip=false)
-      if Resolv.getaddresses(host).empty?
+      resolved_host = Resolv.getaddresses(host).first
+      if resolved_host.nil?
         print("Waiting for #{host} to resolve")
-        wait_until('ready!') { Resolv.getaddresses(host).any? }
+        wait_until('ready!') { resolved_host = Resolv.getaddresses(host).first }
       end
-      host = Resolv.getaddresses(host).first if get_ip
+      host = resolved_host if get_ip
       unless remote_is_available?(host)
         print("Waiting for #{host} to accept connections")
         wait_until('ready!') { remote_is_available?(host) }

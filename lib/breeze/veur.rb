@@ -38,7 +38,14 @@ module Breeze
     #   wait_until { my_task.completed? }
     def wait_until(message='completed!')
       3.times { dot_and_sleep(1) }
-      dot_and_sleep(2) until yield
+      begin
+        dot_and_sleep(2) until yield
+      rescue Excon::Errors::SocketError => e
+        # print out the error so the user can interrupt if necessary
+        print "#{e.class}: #{e.message}! Retry:"
+        sleep(1)
+        retry
+      end
       puts message
     end
 
