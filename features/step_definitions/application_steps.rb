@@ -1,5 +1,5 @@
 Given /^I have an empty working directory$/ do
-  When "I run `rm -rf config Thorfile`"
+  step "I run `rm -rf config Thorfile`"
 end
 
 Given /^my Thorfile contains access credentials and configuration$/ do
@@ -9,6 +9,6 @@ end
 
 Then /^the output should look like:$/ do |lines|
   lines.each_line do |line|
-    all_stdout.should match(/#{line.strip}/)
+    all_output.should match(/#{line.strip}/)
   end
 end
