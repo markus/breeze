@@ -1,10 +1,10 @@
-require 'fog/compute/models/aws/server'
-require 'fog/compute/models/aws/image'
+require 'fog/aws/models/compute/server'
+require 'fog/aws/models/compute/image'
 
 module Fog
 
-  module AWS
-    class Compute::Server
+  module Compute
+    class AWS::Server
 
       def name
         breeze_data['name'] || tags['Name']
@@ -54,7 +54,7 @@ module Fog
       end
 
     end
-    class Compute::Image
+    class AWS::Image
 
       def display_name
         name or location

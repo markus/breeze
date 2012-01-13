@@ -16,13 +16,17 @@ END_SCRIPT
 # and commands that make changes to the local system.
 system("rm -rf #{template_dir}/config/breeze/configs/*")
 
-# Use the current source insted of the installed gem.
+# Use the current source with bundler insted of the installed gem.
 thorfile_path = File.join(template_dir, 'Thorfile')
 thorfile_content = File.read(thorfile_path)
-expected_require = "require 'breeze'"
-wanted_require = "require 'bundler'; Bundler.setup; require 'breeze'"
-raise "Cannot find #{expected_require} in #{thorfile_path}" unless thorfile_content.include?(expected_require)
-File.open(thorfile_path, 'w') { |f| f.puts(thorfile_content.sub(expected_require, wanted_require)) }
+{ # replace thorfile content:
+  "require 'breeze'" => "require 'bundler'; Bundler.setup; require 'breeze'",
+  "'THE-NAME-OF-YOUR-KEYPAIR'" => 'nil'
+}.each do |expected, wanted|
+  raise "Cannot find #{expected} in #{thorfile_path}" unless thorfile_content.include?(expected)
+  thorfile_content.sub!(expected, wanted)
+end
+File.open(thorfile_path, 'w') { |f| f.puts(thorfile_content) }
 
 # Use Fog.mock!
 system("echo 'Fog.mock!' >> #{thorfile_path}")

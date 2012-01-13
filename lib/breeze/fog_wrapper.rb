@@ -54,7 +54,7 @@ module Breeze
       end
       private
       def data_file  ; 'fog_compute_data.yaml' ; end
-      def mock_class ; Fog::AWS::Compute::Mock ; end
+      def mock_class ; Fog::Compute::AWS::Mock ; end
     end
 
     # TODO: add RDS mocks to fog so that we can start testing it

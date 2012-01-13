@@ -24,7 +24,7 @@ END_DESCRIPTION
   s.require_paths = ["lib"]
 
   s.add_dependency('thor')
-  s.add_dependency('fog', '>= 0.7')
+  s.add_dependency('fog')
   s.add_development_dependency "cucumber"
   s.add_development_dependency "aruba"
 end
