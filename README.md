@@ -6,7 +6,7 @@ and deployments. Currently only [Amazon's AWS cloud](http://aws.amazon.com/) is 
 providers that are supported by fog.
 
 Breeze implements zero downtime deploys and rollbacks by moving an elastic ip from one server to another. Db migrations have to be
-compatible with the previous version.
+compatible with the previous version. http://pedro.herokuapp.com/past/2011/7/13/rails_migrations_with_no_downtime/
 
 ## install
 
