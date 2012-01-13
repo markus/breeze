@@ -1,6 +1,6 @@
 module Breeze
 
-  VERSION = "0.0.4"
+  VERSION = "0.0.5"
   autoload :Veur, 'breeze/veur'
 
 end
