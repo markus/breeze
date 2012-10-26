@@ -64,7 +64,7 @@ module Breeze
       puts table
     end
 
-    # capture table in order to determine it's width
+    # capture table in order to determine its width
     def capture_table(table)
       return 'none' if table.size == 1 # the first row is for column titles
       $stdout = StringIO.new  # start capturing the output
@@ -79,7 +79,7 @@ module Breeze
     end
 
     def dns
-      @dns ||= Fog::DNS.new(CONFIGURATION[:cloud_service])
+      @dns ||= Breeze::FogWrapper.connection(:dns)
     end
 
     def rds

@@ -7,11 +7,12 @@ module Breeze
   module FogWrapper
 
     def self.connection(type)
-      {:compute => Compute, :rds => RDS}[type].get_connection
+      {:compute => Compute, :dns => DNS, :rds => RDS}[type].get_connection
     end
 
     def self.flush_mock_data!
       Compute.new.flush_data!
+      DNS.new.flush_data!
       # RDS.new.flush_data!
     end
 
@@ -55,6 +56,15 @@ module Breeze
       private
       def data_file  ; 'fog_compute_data.yaml' ; end
       def mock_class ; Fog::Compute::AWS::Mock ; end
+    end
+
+    class DNS < AbstractConnectionWrapper
+      def self.direct_fog_connection
+        Fog::DNS.new(CONFIGURATION[:cloud_service])
+      end
+      private
+      def data_file  ; 'fog_dns_data.yaml' ; end
+      def mock_class ; Fog::DNS::AWS::Mock ; end
     end
 
     # TODO: add RDS mocks to fog so that we can start testing it
