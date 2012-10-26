@@ -51,7 +51,7 @@ module Breeze
 
       desc 'create ZONE_ID NAME TYPE IP [TTL]', 'Create a new DNS record'
       def create(zone_id, name, type, ip, ttl=3600)
-        get_zone(zone_id).records.create(:name => name, :type => type, :ip => ip, :ttl => ttl)
+        get_zone(zone_id).records.create(:name => name, :type => type, :value => ip, :ttl => ttl)
         FogWrapper.flush_mock_data! if Fog.mocking?
       end
 
