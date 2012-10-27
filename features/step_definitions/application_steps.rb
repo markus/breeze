@@ -12,3 +12,7 @@ Then /^the output should look like:$/ do |lines|
     all_output.should match(/#{line.strip}/)
   end
 end
+
+Then /^show me the output$/ do
+  puts all_output
+end
