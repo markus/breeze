@@ -61,10 +61,14 @@ module Breeze
       puts("The new server should soon be available at: #{ip(new_server)}")
       if ask("Ready to continue and move the elastic_ip for #{public_server_name} to the new server? [YES/rollback] >") =~ /r|n/i
         new_server.destroy
-      else
+      elsif old_server
         remote("nohup sudo shutdown -h +#{CONFIGURATION[:rollback_window]} > /dev/null 2>&1 &", :host => ip(old_server))
         old_server.spare_for_rollback!
         move_addresses(old_server, new_server)
+      else
+        puts('ERROR: Cannot move the IP because the current active server was not found.')
+        puts("Move it manually with: thor server:address:associate [IP] #{new_server.id}")
+        puts("or create a new elastic IP with: thor server:address:create #{new_server.id}")
       end
     end
 
