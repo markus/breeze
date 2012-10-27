@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'thor'
+require 'breeze'
 
 module Breeze
   class Runner < Thor
@@ -9,6 +10,18 @@ module Breeze
     def init(*args)
       require 'breeze/initializer'
       invoke('breeze:initializer:init')
+    end
+
+    # Display the version number if the default task (help) is invoked with:
+    # breeze --version
+    desc 'help [TASK]', 'Describe available tasks or one specific task'
+    method_option :version, :aliases => '-v', :desc => 'Display the version number'
+    def help(task=nil)
+      if options[:version]
+        puts "breeze version #{VERSION}"
+      else
+        super(task)
+      end
     end
 
   end
