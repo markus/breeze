@@ -35,4 +35,5 @@ system("echo 'Fog.mock!' >> #{thorfile_path}")
 Before do
   system("cp -r #{template_dir} tmp/aruba")
   @aruba_timeout_seconds = 5
+  @dirs = ['tmp/aruba/test_app_template']
 end
