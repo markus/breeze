@@ -12,6 +12,7 @@ module Breeze
       volumes
       db_servers
       dns_zones
+      cache_clusters
     end
 
     desc :images, 'Describe machine images owned by Breeze::CONFIGURATION[:image_owner]'
@@ -70,6 +71,14 @@ module Breeze
       report "DNS RECORDS FOR #{zone.domain}",
         ['Name', 'Type', 'TTL', 'Value'],
         zone.records.map{ |r| [r.name, r.type, r.ttl, r.ip.join(', ')] }
+    end
+
+    desc :cache_clusters, 'Describe ElastiCache clusters'
+    def cache_clusters
+      report 'CACHE CLUSTERS',
+        ['Name', 'Type', 'Engine', 'Nodes', 'Status'],
+        elasticache.clusters.map{ |c| [c.id, c.node_type, c.engine, c.num_nodes, c.status] }
+        # c.nodes[0]['Address']
     end
 
   end

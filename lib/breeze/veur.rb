@@ -86,5 +86,9 @@ module Breeze
       @rds ||= Breeze::FogWrapper.connection(:rds)
     end
 
+    def elasticache
+      @elasticache ||= Breeze::FogWrapper.connection(:elasticache)
+    end
+
   end
 end

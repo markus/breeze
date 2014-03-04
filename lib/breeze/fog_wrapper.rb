@@ -7,7 +7,7 @@ module Breeze
   module FogWrapper
 
     def self.connection(type)
-      {:compute => Compute, :dns => DNS, :rds => RDS}[type].get_connection
+      {compute: Compute, dns: DNS, rds: RDS, elasticache: Elasticache}[type].get_connection
     end
 
     def self.flush_mock_data!
@@ -77,6 +77,15 @@ module Breeze
       private
       def data_file  ; 'fog_rds_data.yaml' ; end
       def mock_class ; Fog::AWS::RDS::Mock ; end
+    end
+
+    class Elasticache < AbstractConnectionWrapper
+      def self.direct_fog_connection
+        Fog::AWS::Elasticache.new(CONFIGURATION[:cloud_service])
+      end
+      private
+      def data_file  ; 'fog_elasticache_data.yaml' ; end
+      def mock_class ; Fog::AWS::Elasticache::Mock ; end
     end
 
   end
