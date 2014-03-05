@@ -54,6 +54,18 @@ Breeze::CONFIGURATION = {
     :password => 'admin'
   },
 
+  # elasticache configuration is required in order to use Amazon ElastiCache
+  :default_elasticache_options => {
+    :node_type                    => 'cache.t1.micro',
+    :security_group_names         => '',
+    :num_nodes                    => 1,
+    :auto_minor_version_upgrade   => true,
+    :engine                       => 'memcached',
+    :engine_version               => '',
+    :port                         => '',
+    :preferred_availablility_zone => ''
+  },
+
   # you can add your own keys and access this hash as CONFIGURATION in the erb templates
   :admin_email => 'YOUR-EMAIL',
   :app_path => '/srv/YOUR-APP'
