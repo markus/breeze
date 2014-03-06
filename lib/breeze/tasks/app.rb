@@ -4,24 +4,31 @@ module Breeze
 
   class App < Server
 
-    desc 'start PUBLIC_SERVER_NAME [DB_SERVER_NAME] [DB_NAME]', 'Start a new app with web server and db'
-    method_options :db => true, :db_to_clone => :string, :elastic_ip => true, :dns_ttl => 60, :deploy_branch => :string
-    def start(public_server_name, db_server_name=nil, db_name=nil)
+    desc 'start PUBLIC_SERVER_NAME', 'Start a new app with web server and db'
+    method_options db: true, db_server_name: :string, db_name: :string, db_to_clone: :string,
+      elasticache: true, cache_cluster_name: :string,
+      elastic_ip: true, dns_ttl: 60,
+      deploy_branch: :string
+    def start(public_server_name)
       if options[:db]
-        raise 'DB_SERVER_NAME is required unless --no-db is given.' if db_server_name.nil?
+        raise '--db-server-name is required unless --no-db is given.' if options[:db_server_name].nil?
         if options[:db_to_clone]
-          thor("db:clone #{options[:db_to_clone]} #{db_server_name}")
+          thor("db:clone #{options[:db_to_clone]} #{options[:db_server_name]}")
         else
-          thor("db:create #{db_server_name} #{db_name}")
+          thor("db:create #{options[:db_server_name]} #{options[:db_name]}")
         end
       end
+      if options[:elasticache]
+        raise '--cache-cluster-name is required unless --no-elasticache is given.' if options[:cache_cluster_name].nil?
+        thor("elasticache:create #{options[:cache_cluster_name]}")
+      end
       server = create_server
-      server.breeze_data(:name => public_server_name, :db => db_server_name)
+      server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name])
       if options[:elastic_ip]
         thor("server:address:create #{server.id}")
         server.reload until server.addresses.first
       end
-      deploy_command([server], public_server_name, db_server_name, options[:deploy_branch]) if options[:deploy_branch]
+      deploy_command([server], public_server_name, options)
       thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
     end
 
@@ -29,16 +36,21 @@ module Breeze
     method_options :force => false
     def stop(public_server_name)
       dbs_to_destroy = []
+      cache_clusters_to_destroy = []
       active_servers(public_server_name).each do |server|
         server.addresses.each do |address|
           thor("server:address:release #{address.public_ip}")
         end
         thor("dns:record:destroy #{zone_id(public_server_name)} #{public_server_name}. A")
         dbs_to_destroy << server.breeze_data['db']
+        cache_clusters_to_destroy << server.breeze_data['cache']
         thor("server:destroy #{server.id}")
       end
       dbs_to_destroy.uniq.compact.each do |db_name|
         thor("db:destroy #{db_name}")
+      end
+      cache_clusters_to_destroy.uniq.compact.each do |cache_cluster_name|
+        thor("elasticache:destroy #{cache_cluster_name}")
       end
     end
 
@@ -52,12 +64,13 @@ module Breeze
       on_each_server(enable_app_command, public_server_name)
     end
 
-    desc 'deploy PUBLIC_SERVER_NAME DB_SERVER_NAME BRANCH', 'Deploy a new version by replacing old servers with new ones'
-    def deploy(public_server_name, db_server_name, branch)
+    desc 'deploy PUBLIC_SERVER_NAME', 'Deploy a new version by replacing old servers with new ones'
+    method_options db_server_name: :string, cache_cluster_name: :string, deploy_branch: :string
+    def deploy(public_server_name)
       old_server = active_servers(public_server_name).first
       new_server = create_server
-      new_server.breeze_data(:name => public_server_name, :db => db_server_name)
-      deploy_command([new_server], public_server_name, db_server_name, branch)
+      new_server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name])
+      deploy_command([new_server], public_server_name, options)
       puts("The new server should soon be available at: #{ip(new_server)}")
       if ask("Ready to continue and move the elastic_ip for #{public_server_name} to the new server? [YES/rollback] >") =~ /r|n/i
         new_server.destroy
@@ -170,7 +183,7 @@ module Breeze
       c.class_eval <<-END_TASKS
       desc 'deploy', 'Deploy a new version by replacing old servers with new ones'
       def deploy
-        thor("app:deploy \#{PUBLIC_SERVER_NAME} \#{DB_SERVER_NAME} \#{BRANCH}")
+        thor("app:deploy \#{PUBLIC_SERVER_NAME} --db-server-name=\#{DB_SERVER_NAME} --cache-cluster-name=\#{CACHE_CLUSTER_NAME} --deploy-branch=\#{BRANCH}")
       end
       desc 'rollback', 'Rollback the previous deploy'
       def rollback
