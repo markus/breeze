@@ -13,6 +13,7 @@ module Breeze
       db_servers
       dns_zones
       cache_clusters
+      load_balancers
     end
 
     desc :images, 'Describe machine images owned by Breeze::CONFIGURATION[:image_owner]'
@@ -79,6 +80,13 @@ module Breeze
         ['Name', 'Type', 'Engine', 'Nodes', 'Status'],
         elasticache.clusters.map{ |c| [c.id, c.node_type, c.engine, c.num_nodes, c.status] }
         # c.nodes[0]['Address']
+    end
+
+    desc :load_balancers, 'Describe ELB load balancers'
+    def load_balancers
+      report 'ELASTIC LOAD BALANCERS',
+        ['Name', 'DNS name', 'Availability zones', 'Instances'],
+        elb.load_balancers.map{ |lb| [lb.id, lb.dns_name, lb.availability_zones.join(', '), lb.instances.join(', ')] }
     end
 
   end

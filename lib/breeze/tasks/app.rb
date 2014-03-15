@@ -8,6 +8,7 @@ module Breeze
     method_options db: true, db_server_name: :string, db_name: :string, db_to_clone: :string,
       elasticache: true, cache_cluster_name: :string,
       elastic_ip: true, dns_ttl: 60,
+      elb_name: :string, elb_cname: true,
       deploy_branch: :string
     def start(public_server_name)
       if options[:db]
@@ -23,13 +24,22 @@ module Breeze
         thor("elasticache:create #{options[:cache_cluster_name]}")
       end
       server = create_server
-      server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name])
-      if options[:elastic_ip]
+      server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name], elb: options[:elb_name])
+      if options[:elastic_ip] and options[:elb_name].nil?
         thor("server:address:create #{server.id}")
         server.reload until server.addresses.first
       end
       deploy_command([server], public_server_name, options)
-      thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+      if options[:elb_name]
+        if options[:elb_cname]
+          thor("elb:create #{options[:elb_name]} #{public_server_name} #{zone_id(public_server_name)}")
+        else
+          thor("elb:create #{options[:elb_name]}")
+        end
+        thor("elb:add_instances #{options[:elb_name]} #{server.id}")
+      else
+        thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+      end
     end
 
     desc 'stop PUBLIC_SERVER_NAME', 'Destroy web server and db'
@@ -37,13 +47,14 @@ module Breeze
     def stop(public_server_name)
       dbs_to_destroy = []
       cache_clusters_to_destroy = []
+      elb_to_destroy = nil
       active_servers(public_server_name).each do |server|
         server.addresses.each do |address|
           thor("server:address:release #{address.public_ip}")
         end
-        thor("dns:record:destroy #{zone_id(public_server_name)} #{public_server_name}. A")
         dbs_to_destroy << server.breeze_data['db']
         cache_clusters_to_destroy << server.breeze_data['cache']
+        elb_to_destroy ||= server.breeze_data['elb']
         thor("server:destroy #{server.id}")
       end
       dbs_to_destroy.uniq.compact.each do |db_name|
@@ -51,6 +62,16 @@ module Breeze
       end
       cache_clusters_to_destroy.uniq.compact.each do |cache_cluster_name|
         thor("elasticache:destroy #{cache_cluster_name}")
+      end
+      if elb_to_destroy
+        elb_cname_record = find_zone_recursively(public_server_name).records.detect{ |r| r.name == "#{public_server_name}." and r.type == 'CNAME' }
+        if elb_cname_record
+          thor("elb:destroy #{elb_to_destroy} #{public_server_name} #{zone_id(public_server_name)}")
+        else
+          thor("elb:destroy #{elb_to_destroy}")
+        end
+      else
+        thor("dns:record:destroy #{zone_id(public_server_name)} #{public_server_name}. A")
       end
     end
 
@@ -197,9 +218,10 @@ module Breeze
       def enable
         thor("app:enable \#{PUBLIC_SERVER_NAME}")
       end
-      desc 'ssh', 'Log in with ssh'
-      def ssh
-        log_in_to(PUBLIC_SERVER_NAME)
+      desc 'ssh [INSTANCE_ID]', 'Log in with ssh'
+      def ssh(instance_id=nil)
+        server = (instance_id ? fog.servers.get(instance_id) : active_servers(PUBLIC_SERVER_NAME)[0])
+        log_in_to(server.public_ip_address)
       end
       END_TASKS
     end

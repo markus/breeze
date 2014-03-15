@@ -90,5 +90,9 @@ module Breeze
       @elasticache ||= Breeze::FogWrapper.connection(:elasticache)
     end
 
+    def elb
+      @elb ||= Breeze::FogWrapper.connection(:elb)
+    end
+
   end
 end
