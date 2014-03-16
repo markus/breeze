@@ -23,22 +23,10 @@ module Breeze
         raise '--cache-cluster-name is required unless --no-elasticache is given.' if options[:cache_cluster_name].nil?
         thor("elasticache:create #{options[:cache_cluster_name]}")
       end
-      server = create_server
-      server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name], elb: options[:elb_name])
-      if options[:elastic_ip] and options[:elb_name].nil?
-        thor("server:address:create #{server.id}")
-        server.reload until server.addresses.first
-      end
-      deploy_command([server], public_server_name, options)
       if options[:elb_name]
-        if options[:elb_cname]
-          thor("elb:create #{options[:elb_name]} #{public_server_name} #{zone_id(public_server_name)}")
-        else
-          thor("elb:create #{options[:elb_name]}")
-        end
-        thor("elb:add_instances #{options[:elb_name]} #{server.id}")
+        create_elb_and_app_servers(public_server_name, options)
       else
-        thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+        create_app_server_with_elastic_ip(public_server_name, options)
       end
     end
 
@@ -131,6 +119,38 @@ module Breeze
     end
 
     private
+
+    def create_elb_and_app_servers(public_server_name, options)
+      if options[:elb_cname]
+        thor("elb:create #{options[:elb_name]} #{public_server_name} #{zone_id(public_server_name)}")
+      else
+        thor("elb:create #{options[:elb_name]}")
+      end
+      servers = []
+      CONFIGURATION[:elb][:instances].each do |availability_zone, server_count|
+        server_count.times do
+          servers << create_server(CONFIGURATION[:default_server_options].merge(availability_zone: availability_zone))
+          set_server_tags(servers.last, public_server_name, options)
+        end
+      end
+      deploy_command(servers, public_server_name, options)
+      thor("elb:add_instances #{options[:elb_name]} #{servers.map(&:id).join(' ')}")
+    end
+
+    def create_app_server_with_elastic_ip(public_server_name, options)
+      server = create_server
+      set_server_tags(server, public_server_name, options)
+      if options[:elastic_ip]
+        thor("server:address:create #{server.id}")
+        server.reload until server.addresses.first
+      end
+      deploy_command([server], public_server_name, options)
+      thor("dns:record:create #{zone_id(public_server_name)} #{public_server_name}. A #{ip(server)} #{options[:dns_ttl]}")
+    end
+
+    def set_server_tags(server, public_server_name, options)
+      server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name], elb: options[:elb_name])
+    end
 
     def move_addresses(from_server, to_server)
       from_server.addresses.each do |address|
