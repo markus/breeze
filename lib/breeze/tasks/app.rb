@@ -74,8 +74,57 @@ module Breeze
     end
 
     desc 'deploy PUBLIC_SERVER_NAME', 'Deploy a new version by replacing old servers with new ones'
-    method_options db_server_name: :string, cache_cluster_name: :string, deploy_branch: :string
+    method_options db_server_name: :string, cache_cluster_name: :string, elb_name: :string, deploy_branch: :string
     def deploy(public_server_name)
+      if options[:elb_name]
+        deploy_with_elb(public_server_name, options)
+      else
+        deploy_with_elastic_ip(public_server_name, options)
+      end
+    end
+
+    desc 'rollback PUBLIC_SERVER_NAME', 'Rollback a deploy'
+    def rollback(public_server_name)
+      old_servers = spare_servers(public_server_name)
+      raise "no running spare server found for #{public_server_name}" if old_servers.size == 0
+      old_servers.each do |old_server|
+        unless ip(old_server) # the ip may be temporarily unknown if the old elastic ip has been moved to another instance
+          wait_until { old_server.reload; ip(old_server) }
+        end
+        remote('sudo shutdown -c', :host => ip(old_server))
+      end
+      new_servers = active_servers(public_server_name)
+      new_servers.each do |new_server|
+        remote(disable_app_command, :host => ip(new_server))
+      end
+      if options[:elb_name]
+        thor("elb:add_instances #{options[:elb_name]} #{old_servers.map(&:id).join(' ')}")
+        thor("elb:remove_instances #{options[:elb_name]} #{new_servers.map(&:id).join(' ')}")
+      else
+        move_addresses(new_servers.first, old_servers.first)
+      end
+      old_servers.each { |s| s.breeze_state('reactivated') }
+      new_servers.each { |s| s.breeze_state('abandoned_due_to_rollback') }
+      if accept?("Ready to destroy the abandoned #{new_servers.size} server(s) now?")
+        new_servers.each { |s| s.destroy }
+      end
+    end
+
+    private
+
+    def deploy_with_elb(public_server_name, options)
+      old_servers = active_servers(public_server_name)
+      create_app_servers_for_elb(public_server_name, options)
+      if accept?("Continue and remove the old servers from the ELB?")
+        thor("elb:remove_instances #{options[:elb_name]} #{old_servers.map(&:id).join(' ')}")
+        old_servers.each do |old_server|
+          remote("nohup sudo shutdown -h +#{CONFIGURATION[:rollback_window]} > /dev/null 2>&1 &", :host => ip(old_server))
+          old_server.spare_for_rollback!
+        end
+      end
+    end
+
+    def deploy_with_elastic_ip(public_server_name, options)
       old_server = active_servers(public_server_name).first
       new_server = create_server
       new_server.breeze_data(name: public_server_name, db: options[:db_server_name], cache: options[:cache_cluster_name])
@@ -94,38 +143,16 @@ module Breeze
       end
     end
 
-    desc 'rollback PUBLIC_SERVER_NAME', 'Rollback a deploy'
-    def rollback(public_server_name)
-      old_server = spare_servers(public_server_name).first
-      raise "no running spare server found for #{public_server_name}" unless old_server
-      if ip(old_server)
-        temp_ip = nil
-      else
-        puts("Old server does not have a public ip. Allocating a temporary address:")
-        thor("server:address:create #{old_server.id}")
-        old_server.reload until old_server.addresses.first
-        temp_ip = ip(old_server)
-      end
-      remote('sudo shutdown -c', :host => ip(old_server))
-      new_server = active_servers(public_server_name).first
-      remote(disable_app_command, :host => ip(new_server))
-      thor("server:address:release #{temp_ip} --force") if temp_ip
-      move_addresses(new_server, old_server)
-      old_server.breeze_state('reactivated')
-      new_server.breeze_state('abandoned_due_to_rollback')
-      if accept?('Ready to destroy the abandoned server now?')
-        new_server.destroy
-      end
-    end
-
-    private
-
     def create_elb_and_app_servers(public_server_name, options)
       if options[:elb_cname]
         thor("elb:create #{options[:elb_name]} #{public_server_name} #{zone_id(public_server_name)}")
       else
         thor("elb:create #{options[:elb_name]}")
       end
+      create_app_servers_for_elb(public_server_name, {force: true}.merge(options))
+    end
+
+    def create_app_servers_for_elb(public_server_name, options)
       servers = []
       CONFIGURATION[:elb][:instances].each do |availability_zone, server_count|
         server_count.times do
@@ -134,7 +161,13 @@ module Breeze
         end
       end
       deploy_command(servers, public_server_name, options)
-      thor("elb:add_instances #{options[:elb_name]} #{servers.map(&:id).join(' ')}")
+      servers.each do |server|
+        if force_or_accept?("Ready to add #{ip(server)} to ELB #{options[:elb_name]}?")
+          thor("elb:add_instances #{options[:elb_name]} #{server.id}")
+        else
+          server.destroy
+        end
+      end
     end
 
     def create_app_server_with_elastic_ip(public_server_name, options)
