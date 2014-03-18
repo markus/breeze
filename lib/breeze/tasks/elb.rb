@@ -18,6 +18,11 @@ module Breeze
       elb.register_instances(instance_ids, name)
     end
 
+    desc 'remove_instances LOAD_BALANCER_NAME instance_id [instance_id, ...]', 'Remove server instances from a load balancer'
+    def remove_instances(name, *instance_ids)
+      elb.deregister_instances(instance_ids, name)
+    end
+
     desc 'destroy LOAD_BALANCER_NAME', 'Destroy an elastic load balancer'
     method_options :force => false
     def destroy(name, cname=nil, dns_zone_id=nil)
