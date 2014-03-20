@@ -6,7 +6,7 @@ module Breeze
     method_options :dns_ttl => 60
     def create(name, cname=nil, dns_zone_id=nil)
       conf = CONFIGURATION[:elb]
-      response = elb.create_load_balancer(conf[:instances].keys, name, conf[:listeners])
+      response = elb.create_load_balancer(conf[:instances].map{ |i| i[:availability_zone] }.uniq, name, conf[:listeners])
       if cname
         thor("dns:record:create #{dns_zone_id} #{cname}. CNAME #{response.body['CreateLoadBalancerResult']['DNSName']} #{options[:dns_ttl]}")
       end

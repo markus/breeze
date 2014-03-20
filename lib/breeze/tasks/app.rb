@@ -149,14 +149,15 @@ module Breeze
       else
         thor("elb:create #{options[:elb_name]}")
       end
-      create_app_servers_for_elb(public_server_name, {force: true}.merge(options))
+      create_app_servers_for_elb(public_server_name, options.merge(force: true))
     end
 
     def create_app_servers_for_elb(public_server_name, options)
       servers = []
-      CONFIGURATION[:elb][:instances].each do |availability_zone, server_count|
-        server_count.times do
-          servers << create_server(CONFIGURATION[:default_server_options].merge(availability_zone: availability_zone))
+      CONFIGURATION[:elb][:instances].each do |instance_conf|
+        instance_conf = instance_conf.dup
+        instance_conf.delete(:count).times do
+          servers << create_server(CONFIGURATION[:default_server_options].merge(instance_conf))
           set_server_tags(servers.last, public_server_name, options)
         end
       end
