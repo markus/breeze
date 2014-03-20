@@ -30,7 +30,7 @@ module Breeze
       if force_or_accept?("Destroy load balancer #{name}?")
         load_balancer.destroy
         if cname
-          thor("dns:record:destroy #{dns_zone_id} #{cname}. CNAME")
+          thor("dns:record:destroy #{dns_zone_id} #{cname}. CNAME --force")
         end
         load_balancer.reload
       end
