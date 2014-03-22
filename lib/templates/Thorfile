@@ -66,6 +66,33 @@ Breeze::CONFIGURATION = {
     :preferred_availablility_zone => ''
   },
 
+  # ELB configuration is required in order to use Amazon Elastic Load Balancing
+  :elb => {
+    :instances => [
+      {availability_zone: 'us-east-1a', flavor_id: 't1.micro', count: 1},
+      {availability_zone: 'us-east-1d', flavor_id: 't1.micro', count: 1}
+    ],
+    :listeners => [{
+      'Protocol' => 'HTTP',
+      'LoadBalancerPort' => 80,
+      'InstancePort' => 80,
+      'InstanceProtocol' => 'HTTP'
+    }, {
+      'Protocol' => 'HTTPS',
+      'LoadBalancerPort' => 443,
+      'InstancePort' => 80,
+      'InstanceProtocol' => 'HTTP',
+      'SSLCertificateId' => 'arn:aws:iam::....'
+    }],
+    :health_check => {
+      'Target' => 'HTTP:80/ping',
+      'Interval' => 20,
+      'Timeout' => 4,
+      'HealthyThreshold' => 3,
+      'UnhealthyThreshold' => 2
+    }
+  },
+
   # you can add your own keys and access this hash as CONFIGURATION in the erb templates
   :admin_email => 'YOUR-EMAIL',
   :app_path => '/srv/YOUR-APP'
