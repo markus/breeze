@@ -84,6 +84,7 @@ module Breeze
     end
 
     desc 'rollback PUBLIC_SERVER_NAME', 'Rollback a deploy'
+    method_options elb_name: :string
     def rollback(public_server_name)
       old_servers = spare_servers(public_server_name)
       raise "no running spare server found for #{public_server_name}" if old_servers.size == 0
@@ -258,11 +259,19 @@ module Breeze
       c.class_eval <<-END_TASKS
       desc 'deploy', 'Deploy a new version by replacing old servers with new ones'
       def deploy
-        thor("app:deploy \#{PUBLIC_SERVER_NAME} --db-server-name=\#{DB_SERVER_NAME} --cache-cluster-name=\#{CACHE_CLUSTER_NAME} --deploy-branch=\#{BRANCH}")
+        if defined?(ELB_NAME)
+          thor("app:deploy \#{PUBLIC_SERVER_NAME} --db-server-name=\#{DB_SERVER_NAME} --cache-cluster-name=\#{CACHE_CLUSTER_NAME} --elb-name=\#{ELB_NAME} --deploy-branch=\#{BRANCH}")
+        else
+          thor("app:deploy \#{PUBLIC_SERVER_NAME} --db-server-name=\#{DB_SERVER_NAME} --cache-cluster-name=\#{CACHE_CLUSTER_NAME} --deploy-branch=\#{BRANCH}")
+        end
       end
       desc 'rollback', 'Rollback the previous deploy'
       def rollback
-        thor("app:rollback \#{PUBLIC_SERVER_NAME}")
+        if defined?(ELB_NAME)
+          thor("app:rollback \#{PUBLIC_SERVER_NAME} --elb-name=\#{ELB_NAME}")
+        else
+          thor("app:rollback \#{PUBLIC_SERVER_NAME}")
+        end
       end
       desc 'disable', 'Copy maintenance.html to public/system/ on active web servers'
       def disable
