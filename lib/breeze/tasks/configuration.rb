@@ -11,7 +11,7 @@ module Breeze
 
     desc 'deploy_to_localhost [FILE]',
       'Transform and deploy server configuration files to the local file system based on ERB templates in config/server'
-    method_option :force, :default => false, :desc => 'Overwrite and execute @post commands even if files would not change'
+    method_option :force, type: :boolean, default: false, :desc => 'Overwrite and execute @post commands even if files would not change'
     def deploy_to_localhost(file_pattern='config/breeze/configs/**/*')
       Dir[file_pattern].sort.each do |path|
         transform_and_deploy(path, options[:force]) unless File.directory?(path)
