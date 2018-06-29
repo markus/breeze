@@ -68,9 +68,13 @@ Breeze::CONFIGURATION = {
 
   # ELB configuration is required in order to use Amazon Elastic Load Balancing
   :elb => {
+    :options => {
+      security_groups: [],
+      subnet_ids: []
+    }
     :instances => [
-      {availability_zone: 'us-east-1a', flavor_id: 't1.micro', count: 1},
-      {availability_zone: 'us-east-1d', flavor_id: 't1.micro', count: 1}
+      {subnet_id: '', flavor_id: 't2.micro', count: 1},
+      {subnet_id: '', flavor_id: 't2.micro', count: 1}
     ],
     :listeners => [{
       'Protocol' => 'HTTP',
