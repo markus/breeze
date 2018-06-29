@@ -221,14 +221,14 @@ module Breeze
       "sudo rm #{CONFIGURATION[:app_path]}/public/system/maintenance.html"
     end
 
-    def db_endpoint(db_server_name)
-      db = rds.servers.get(db_server_name)
+    def db_endpoint(db_server_name, cluster: false)
+      db = (cluster ? rds.clusters : rds.servers).get(db_server_name)
       return nil unless db
       unless db.ready?
         print('Waiting for the db')
         wait_until { db.reload; db.ready? }
       end
-      db.endpoint['Address']
+      db.endpoint.is_a?(String) ? db.endpoint : db.endpoint['Address']
     end
 
     def ip(server)
