@@ -28,9 +28,9 @@ module Breeze
     desc :servers, 'Describe server instances'
     def servers
       report "SERVER INSTANCES",
-        ['Instance ID', 'IP Address', 'Image ID', 'Type', 'Zone', 'State', 'Info'],
+        ['Name', 'Instance ID', 'IP Address', 'Image ID', 'Type', 'Zone', 'State', 'Info'],
         fog.servers.map { |i|
-          [i.id, i.public_ip_address, i.image_id, i.flavor_id, i.availability_zone, i.state, i.breeze_state]
+          [i.name, i.id, i.public_ip_address, i.image_id, i.flavor_id, i.availability_zone, i.state, i.breeze_state]
         }
     end
 
