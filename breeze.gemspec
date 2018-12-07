@@ -24,7 +24,7 @@ END_DESCRIPTION
   s.require_paths = ["lib"]
 
   s.add_dependency('thor')
-  s.add_dependency('fog')
+  s.add_dependency('fog-aws')
   s.add_development_dependency "rake"
   s.add_development_dependency "cucumber"
   s.add_development_dependency "aruba"
